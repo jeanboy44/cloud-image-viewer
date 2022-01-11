@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import pyqtSlot
 from views.main_view_ui import Ui_MainWindow
+from PyQt5.QtWidgets import QMainWindow, QFileSystemModel
 
 
 class MainView(QMainWindow):
@@ -11,6 +11,13 @@ class MainView(QMainWindow):
         self._main_controller = main_controller
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
+
+        self.fileSystemModel = QFileSystemModel(self._ui.treeView)
+        self.fileSystemModel.setReadOnly(False)
+        root = self.fileSystemModel.setRootPath(".")
+        self._ui.treeView.setModel(self.fileSystemModel)
+        self._ui.treeView.setRootIndex(root)
+        self._ui.treeView.show()
 
         # # connect widgets to controller
         # self._ui.spinBox_amount.valueChanged.connect(

@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5 import QtGui
 
 
 class Model(QObject):
@@ -9,7 +8,6 @@ class Model(QObject):
         self._amount = 0
         self._even_odd = ""
         self._enable_reset = False
-        self.filesystem = QtGui.QFileSystemModel()
 
     amount_changed = pyqtSignal(int)
     even_odd_changed = pyqtSignal(str)
