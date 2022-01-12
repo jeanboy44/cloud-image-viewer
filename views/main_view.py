@@ -1,48 +1,34 @@
 from PyQt5.QtCore import pyqtSlot
 from views.main_view_ui import Ui_MainWindow
-from PyQt5.QtWidgets import QMainWindow, QFileSystemModel
+from PyQt5.QtWidgets import QMainWindow
 
 
 class MainView(QMainWindow):
     def __init__(self, model, main_controller):
         super().__init__()
 
-        self._model = model
-        self._main_controller = main_controller
+        # initialize ui
+        self._mdl = model
+        self._mctrl = main_controller
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
 
-        self.fileSystemModel = QFileSystemModel(self._ui.treeView)
-        self.fileSystemModel.setReadOnly(False)
-        root = self.fileSystemModel.setRootPath(".")
-        self._ui.treeView.setModel(self.fileSystemModel)
-        self._ui.treeView.setRootIndex(root)
-        self._ui.treeView.show()
+        # set model to side bar
+        self._ui.side_bar.setModel(self._mctrl.file_system_model)
 
-        # # connect widgets to controller
-        # self._ui.spinBox_amount.valueChanged.connect(
-        #     self._main_controller.change_amount
-        # )
-        # self._ui.pushButton_reset.clicked.connect(
-        #     lambda: self._main_controller.change_amount(0)
-        # )
+        # connect widgets to controller
+        self._ui.action_menu_file_open.triggered.connect(
+            self._mctrl.open_menu_file_dialog
+        )
+        self._ui.side_bar.clicked.connect(self._mctrl.select_current_path)
 
-        # # listen for model event signals
-        # self._model.amount_changed.connect(self.on_amount_changed)
-        # self._model.even_odd_changed.connect(self.on_even_odd_changed)
-        # self._model.enable_reset_changed.connect(self.on_enable_reset_changed)
+        # listen for model event signals
+        self._mdl.root_dir_selected.connect(self.on_root_dir_selected)
 
-        # # set a default value
-        # self._main_controller.change_amount(42)
-
-    # @pyqtSlot(int)
-    # def on_amount_changed(self, value):
-    #     self._ui.spinBox_amount.setValue(value)
-
-    # @pyqtSlot(str)
-    # def on_even_odd_changed(self, value):
-    #     self._ui.label_even_odd.setText(value)
-
-    # @pyqtSlot(bool)
-    # def on_enable_reset_changed(self, value):
-    #     self._ui.pushButton_reset.setEnabled(value)
+    @pyqtSlot(str)
+    def on_root_dir_selected(self, value):
+        if value != "":
+            root = self._mctrl.file_system_model.setRootPath(value)
+            self._ui.side_bar.setModel(self._mctrl.file_system_model)
+            self._ui.side_bar.setRootIndex(root)
+            self._ui.side_bar.show()
