@@ -4,38 +4,36 @@ from PyQt5.QtCore import QObject, pyqtSignal
 class Model(QObject):
     def __init__(self):
         super().__init__()
+        self._root_dir = ""
+        self._current_path = ""
 
-        self._amount = 0
-        self._even_odd = ""
-        self._enable_reset = False
-
-    amount_changed = pyqtSignal(int)
-    even_odd_changed = pyqtSignal(str)
-    enable_reset_changed = pyqtSignal(bool)
+    root_dir_selected = pyqtSignal(str)
+    current_path_selected = pyqtSignal(str)
+    main_image_loaded = pyqtSignal(str)
 
     @property
-    def amount(self):
-        return self._amount
+    def root_dir(self):
+        return self._root_dir
 
-    @amount.setter
-    def amount(self, value):
-        self._amount = value
-        self.amount_changed.emit(value)
-
-    @property
-    def even_odd(self):
-        return self._even_odd
-
-    @even_odd.setter
-    def even_odd(self, value):
-        self._even_odd = value
-        self.even_odd_changed.emit(value)
+    @root_dir.setter
+    def root_dir(self, value):
+        self._root_dir = value
+        self.root_dir_selected.emit(value)
 
     @property
-    def enable_reset(self):
-        return self._enable_reset
+    def current_path(self):
+        return self._current_path
 
-    @enable_reset.setter
-    def enable_reset(self, value):
-        self._enable_reset = value
-        self.enable_reset_changed.emit(value)
+    @current_path.setter
+    def current_path(self, value):
+        self._current_path = value
+        self.current_path_selected.emit(value)
+
+    @property
+    def main_image(self):
+        return self._current_path
+
+    @main_image.setter
+    def main_image(self, value):
+        self._main_image = value
+        self.main_image_loaded.emit(value)

@@ -13,8 +13,8 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QTreeView" name="treeView">
+  <widget class="QWidget" name="central_widget">
+   <widget class="QTreeView" name="side_bar">
     <property name="geometry">
      <rect>
       <x>-5</x>
@@ -22,6 +22,9 @@
       <width>251</width>
       <height>861</height>
      </rect>
+    </property>
+    <property name="animated">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QWidget" name="widget" native="true">
@@ -35,7 +38,7 @@
     </property>
    </widget>
   </widget>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="QMenuBar" name="menu_bar">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -44,14 +47,71 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuFile">
+   <widget class="QMenu" name="menu_file">
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="action_menu_file_open"/>
+    <addaction name="action_menu_file_save"/>
    </widget>
-   <addaction name="menuFile"/>
+   <widget class="QMenu" name="menu_view">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="action_menu_view_main"/>
+    <addaction name="action_menu_view_list"/>
+    <addaction name="action_menu_view_grid"/>
+    <addaction name="action_menu_view_filelist"/>
+   </widget>
+   <widget class="QMenu" name="menu_settings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="action_menu_settings_account"/>
+   </widget>
+   <addaction name="menu_file"/>
+   <addaction name="menu_view"/>
+   <addaction name="menu_settings"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QStatusBar" name="status_bar"/>
+  <action name="action_menu_file_open">
+   <property name="icon">
+    <iconset theme="file"/>
+   </property>
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="action_menu_file_save">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="action_menu_view_main">
+   <property name="text">
+    <string>main</string>
+   </property>
+  </action>
+  <action name="action_menu_view_list">
+   <property name="text">
+    <string>list</string>
+   </property>
+  </action>
+  <action name="action_menu_view_grid">
+   <property name="text">
+    <string>grid</string>
+   </property>
+  </action>
+  <action name="action_menu_view_filelist">
+   <property name="text">
+    <string>file list</string>
+   </property>
+  </action>
+  <action name="action_menu_settings_account">
+   <property name="text">
+    <string>account</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
