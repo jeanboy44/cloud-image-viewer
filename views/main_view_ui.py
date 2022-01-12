@@ -24,6 +24,9 @@ class Ui_MainWindow(object):
         self.widget = QtWidgets.QWidget(self.central_widget)
         self.widget.setGeometry(QtCore.QRect(250, 0, 651, 861))
         self.widget.setObjectName("widget")
+        self.main_viewer = QtWidgets.QLabel(self.widget)
+        self.main_viewer.setGeometry(QtCore.QRect(0, 0, 651, 861))
+        self.main_viewer.setObjectName("main_viewer")
         MainWindow.setCentralWidget(self.central_widget)
         self.menu_bar = QtWidgets.QMenuBar(MainWindow)
         self.menu_bar.setGeometry(QtCore.QRect(0, 0, 904, 21))
@@ -71,6 +74,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.main_viewer.setText(_translate("MainWindow", "TextLabel"))
         self.menu_file.setTitle(_translate("MainWindow", "File"))
         self.menu_view.setTitle(_translate("MainWindow", "View"))
         self.menu_settings.setTitle(_translate("MainWindow", "Settings"))
@@ -85,7 +89,6 @@ class Ui_MainWindow(object):
 
 if __name__ == "__main__":
     import sys
-
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()

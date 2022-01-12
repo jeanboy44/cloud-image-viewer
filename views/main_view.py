@@ -1,6 +1,7 @@
 from PyQt5.QtCore import pyqtSlot
 from views.main_view_ui import Ui_MainWindow
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtGui import QPixmap
 
 
 class MainView(QMainWindow):
@@ -24,6 +25,7 @@ class MainView(QMainWindow):
 
         # listen for model event signals
         self._mdl.root_dir_selected.connect(self.on_root_dir_selected)
+        self._mdl.main_image_loaded.connect(self.on_main_image_loaded)
 
     @pyqtSlot(str)
     def on_root_dir_selected(self, value):
@@ -32,3 +34,8 @@ class MainView(QMainWindow):
             self._ui.side_bar.setModel(self._mctrl.file_system_model)
             self._ui.side_bar.setRootIndex(root)
             self._ui.side_bar.show()
+
+    @pyqtSlot("QImage")
+    def on_main_image_loaded(self, value):
+        qpix_map = QPixmap.fromImage(value)
+        self._ui.main_viewer.setPixmap(qpix_map)

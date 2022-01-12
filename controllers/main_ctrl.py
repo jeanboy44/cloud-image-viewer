@@ -1,6 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel
-from PyQt5.QtGui import QImageReader, QImage
+from PyQt5.QtGui import QImageReader
 
 DEFAULT_OPEN_DIR_PATH = ""
 
@@ -8,7 +8,7 @@ DEFAULT_OPEN_DIR_PATH = ""
 class MainController(QObject):
     def __init__(self, model):
         super().__init__()
-        self._model = model
+        self._mdl = model
         self.file_system_model = QFileSystemModel()
         self.file_system_model.setReadOnly(False)
 
@@ -17,7 +17,7 @@ class MainController(QObject):
 
     @pyqtSlot()
     def open_menu_file_dialog(self):
-        self._model.root_dir = QFileDialog.getExistingDirectory(
+        self._mdl.root_dir = QFileDialog.getExistingDirectory(
             None,
             "Open Directory",
             DEFAULT_OPEN_DIR_PATH,
@@ -26,7 +26,7 @@ class MainController(QObject):
 
     @pyqtSlot("QModelIndex")
     def select_current_path(self, index):
-        self._model.current_path = self.file_system_model.filePath(index)
+        self._mdl.current_path = self.file_system_model.filePath(index)
 
     @pyqtSlot(str)
     def _on_current_path_selected(self, value):
@@ -37,25 +37,5 @@ class MainController(QObject):
         if value.lower().endswith(tuple(extensions)):
             reader = QImageReader(value)
             reader.setAutoTransform(True)
-            image_data = reader.read()
-            image = QImage.fromData(self.image_data)
-
-    # @pyqtSlot()
-    # def select_file(self):
-
-
-# class MainController(QObject):
-#     def __init__(self, model):
-#         super().__init__()
-
-#         self._model = model
-
-#     @pyqtSlot(int)
-#     def change_amount(self, value):
-#         self._model.amount = value
-
-#         # calculate even or odd
-#         self._model.even_odd = "odd" if value % 2 else "even"
-
-#         # calculate button enabled state
-#         self._model.enable_reset = True if value else False
+            self._mdl.main_image = reader.read()
+            # self.canvas.load_pixmap(QPixmap.fromImage(image))

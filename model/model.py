@@ -1,4 +1,5 @@
 from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtGui import QImage
 
 
 class Model(QObject):
@@ -6,10 +7,11 @@ class Model(QObject):
         super().__init__()
         self._root_dir = ""
         self._current_path = ""
+        self._main_image = None
 
     root_dir_selected = pyqtSignal(str)
     current_path_selected = pyqtSignal(str)
-    main_image_loaded = pyqtSignal(str)
+    main_image_loaded = pyqtSignal(QImage)
 
     @property
     def root_dir(self):
@@ -31,7 +33,7 @@ class Model(QObject):
 
     @property
     def main_image(self):
-        return self._current_path
+        return self._main_image
 
     @main_image.setter
     def main_image(self, value):
