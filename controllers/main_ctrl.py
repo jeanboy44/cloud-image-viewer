@@ -43,3 +43,13 @@ class MainController(QObject):
             reader.setAutoTransform(True)
             self._mdl.main_image = reader.read()
             # self.canvas.load_pixmap(QPixmap.fromImage(image))
+
+    def wheelEvent(self, event):
+        if event.modifiers() & Qt.ControlModifier:
+            x = event.angleDelta().y() / 120
+            if x > 0:
+                self.scale(1.05, 1.05)
+            elif x < 0:
+                self.scale(0.95, 0.95)
+        else:
+            super().wheelEvent(event)
