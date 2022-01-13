@@ -21,7 +21,9 @@ class MainView(QMainWindow):
         self._ui.action_menu_file_open.triggered.connect(
             self._mctrl.open_menu_file_dialog
         )
-        self._ui.side_bar.clicked.connect(self._mctrl.select_current_path)
+        side_bar_selmodel = self._ui.side_bar.selectionModel()
+        side_bar_selmodel.selectionChanged.connect(self._mctrl.select_current_path)
+        # self._ui.side_bar.clicked.connect(self._mctrl.select_current_path)
 
         # listen for model event signals
         self._mdl.root_dir_selected.connect(self.on_root_dir_selected)

@@ -24,9 +24,13 @@ class MainController(QObject):
             # QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
         )
 
-    @pyqtSlot("QModelIndex")
-    def select_current_path(self, index):
-        self._mdl.current_path = self.file_system_model.filePath(index)
+    @pyqtSlot("QItemSelection", "QItemSelection")
+    def select_current_path(self, selected, deselected):
+        indices = selected.indexes()
+        # print(len(indices))
+        # print(indices)
+        # for index in indices:
+        self._mdl.current_path = self.file_system_model.filePath(indices[0])
 
     @pyqtSlot(str)
     def _on_current_path_selected(self, value):
