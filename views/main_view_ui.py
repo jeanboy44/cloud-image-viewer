@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'resources/main_view.ui'
+# Form implementation generated from reading ui file 'resources/main_view2.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -14,22 +14,29 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1113, 897)
-        self.central_widget = QtWidgets.QWidget(MainWindow)
-        self.central_widget.setObjectName("central_widget")
-        self.side_bar = QtWidgets.QTreeView(self.central_widget)
-        self.side_bar.setGeometry(QtCore.QRect(-5, 1, 251, 861))
-        self.side_bar.setAnimated(True)
+        MainWindow.resize(1182, 597)
+        self.main_widget = QtWidgets.QWidget(MainWindow)
+        self.main_widget.setObjectName("main_widget")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.main_widget)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.side_bar = QtWidgets.QTreeView(self.main_widget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.side_bar.sizePolicy().hasHeightForWidth())
+        self.side_bar.setSizePolicy(sizePolicy)
+        self.side_bar.setMinimumSize(QtCore.QSize(200, 0))
+        self.side_bar.setMaximumSize(QtCore.QSize(400, 16777215))
+        self.side_bar.setBaseSize(QtCore.QSize(200, 0))
         self.side_bar.setObjectName("side_bar")
-        self.widget = QtWidgets.QWidget(self.central_widget)
-        self.widget.setGeometry(QtCore.QRect(250, 0, 861, 861))
-        self.widget.setObjectName("widget")
-        self.main_viewer = QtWidgets.QLabel(self.widget)
-        self.main_viewer.setGeometry(QtCore.QRect(0, 0, 861, 851))
-        self.main_viewer.setObjectName("main_viewer")
-        MainWindow.setCentralWidget(self.central_widget)
+        self.horizontalLayout_3.addWidget(self.side_bar)
+        self.main_view = QtWidgets.QLabel(self.main_widget)
+        self.main_view.setText("")
+        self.main_view.setObjectName("main_view")
+        self.horizontalLayout_3.addWidget(self.main_view)
+        MainWindow.setCentralWidget(self.main_widget)
         self.menu_bar = QtWidgets.QMenuBar(MainWindow)
-        self.menu_bar.setGeometry(QtCore.QRect(0, 0, 1113, 21))
+        self.menu_bar.setGeometry(QtCore.QRect(0, 0, 1182, 21))
         self.menu_bar.setObjectName("menu_bar")
         self.menu_file = QtWidgets.QMenu(self.menu_bar)
         self.menu_file.setObjectName("menu_file")
@@ -74,7 +81,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.main_viewer.setText(_translate("MainWindow", "TextLabel"))
         self.menu_file.setTitle(_translate("MainWindow", "File"))
         self.menu_view.setTitle(_translate("MainWindow", "View"))
         self.menu_settings.setTitle(_translate("MainWindow", "Settings"))

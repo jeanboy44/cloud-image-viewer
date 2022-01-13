@@ -8,6 +8,14 @@ class MainView(QMainWindow):
     def __init__(self, model, main_controller):
         super().__init__()
 
+        # set the title of main window
+        self.setWindowTitle("Cloud Image Viewer")
+
+        # set the size of window
+        self.Width = 800
+        self.height = int(0.618 * self.Width)
+        self.resize(self.Width, self.height)
+
         # initialize ui
         self._mdl = model
         self._mctrl = main_controller
@@ -40,4 +48,4 @@ class MainView(QMainWindow):
     @pyqtSlot("QImage")
     def on_main_image_loaded(self, value):
         qpix_map = QPixmap.fromImage(value)
-        self._ui.main_viewer.setPixmap(qpix_map)
+        self._ui.main_view.setPixmap(qpix_map)
