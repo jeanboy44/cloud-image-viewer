@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from model.model import Model
+from model.model import Model, Settings
 from controllers.main_ctrl import MainController
 from views.main_view import MainView
 
