@@ -131,6 +131,7 @@ dmypy.json
 
 #
 .mvc_example
+.pyqimageview-master
 
 
 config.yml
