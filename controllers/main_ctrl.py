@@ -2,7 +2,7 @@ from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel
 from PyQt5.QtGui import QImageReader
 
-DEFAULT_OPEN_DIR_PATH = ""
+from azure.storage.blob import BlobServiceClient
 
 
 class MainController(QObject):
@@ -14,15 +14,6 @@ class MainController(QObject):
 
         # listen for model event signals
         self._mdl.current_path_selected.connect(self._on_current_path_selected)
-
-    @pyqtSlot()
-    def open_menu_file_dialog(self):
-        self._mdl.root_dir = QFileDialog.getExistingDirectory(
-            None,
-            "Open Directory",
-            DEFAULT_OPEN_DIR_PATH,
-            # QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
-        )
 
     @pyqtSlot("QItemSelection", "QItemSelection")
     def select_current_path(self, selected, deselected):
@@ -53,3 +44,9 @@ class MainController(QObject):
                 self.scale(0.95, 0.95)
         else:
             super().wheelEvent(event)
+
+    def get_container_client(self, connection_str, container_name):
+        blob_service_client = BlobServiceClient.from_connection_string(connection_str)
+        container_client = blob_service_client.get_container_client(container_name)
+
+        return container_client

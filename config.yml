@@ -1,0 +1,4 @@
+access_key: DefaultEndpointsProtocol=https;AccountName=stjgryutest001;AccountKey=J2Rnd8jUI+0QbPIt3WYCcBw9cJZiGYOULgKJzA1nZ8VRwhCmF5UaOo9fq9mhUOXOeM+adAim53bey/EeEgupzQ==;EndpointSuffix=core.windows.net
+account_name: stjgryutest001
+container_name: jgryutest
+name: cloud-image_viewer
