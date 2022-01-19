@@ -131,3 +131,6 @@ dmypy.json
 
 #
 .mvc_example
+
+
+config.yml
