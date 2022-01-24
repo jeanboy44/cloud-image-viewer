@@ -50,3 +50,6 @@ class MainController(QObject):
         container_client = blob_service_client.get_container_client(container_name)
 
         return container_client
+
+    def on_open_app(self):
+        self._mdl.settings
