@@ -19,6 +19,7 @@ class MenuSettingsAccountDig(QDialog):
         # listen for model event signals
         self.ui.apply_pushButton_1.clicked.connect(self.click_apply)
         self.ui.connectiontest_pushButton_1.clicked.connect(self.click_connection_test)
+        self.ui.edit_pushButton_1.clicked.connect(self.click_edit)
 
     @pyqtSlot()
     def click_apply(self):
@@ -51,3 +52,16 @@ class MenuSettingsAccountDig(QDialog):
             print(container_clinet.exists())
         except:
             print("Wrong connection information")
+
+    @pyqtSlot()
+    def click_edit(self):
+        if self.ui.edit_pushButton_1.text() == "Edit":
+            self.ui.account_name_textedit_1.setEnabled(True)
+            self.ui.container_name_textedit_1.setEnabled(True)
+            self.ui.connection_str_textedit_1.setEnabled(True)
+            self.ui.edit_pushButton_1.setText("Cancel")
+        else:
+            self.ui.account_name_textedit_1.setEnabled(False)
+            self.ui.container_name_textedit_1.setEnabled(False)
+            self.ui.connection_str_textedit_1.setEnabled(False)
+            self.ui.edit_pushButton_1.setText("Edit")

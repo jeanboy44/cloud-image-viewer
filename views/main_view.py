@@ -72,5 +72,16 @@ class MainView(QMainWindow):
 
     @pyqtSlot()
     def click_settings_account(self):
+
         settings_account = MenuSettingsAccountDig(self._mdl, self._mctrl)
+        # settings_account.setupUi(self)
+        settings_account.ui.account_name_textedit_1.setText(
+            self._mdl.settings.config.account_name
+        )
+        settings_account.ui.container_name_textedit_1.setText(
+            self._mdl.settings.config.container_name
+        )
+        settings_account.ui.connection_str_textedit_1.setText(
+            self._mdl.settings.config.connection_str
+        )
         settings_account.exec()
