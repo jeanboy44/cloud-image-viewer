@@ -47,10 +47,6 @@ class Model(QObject):
 
 class Settings(QObject):
     def __init__(self):
-        self._root_dir = ""
-        self._current_path = ""
-        self._main_image = None
-
         super().__init__()
         try:
             with open("config.yml") as f:
@@ -62,11 +58,13 @@ class Settings(QObject):
 
         self.config = edict(self.config)
 
+        print(self.config)
+
     def initialize(self):
         config = edict({})
         config.name = "cloud-image_viewer"
         config.account_name = ""
-        config.access_key = ""
+        config.connection_str = ""
         config.container_name = ""
         with open("config.yml", mode="w", encoding="utf8") as f:
             yaml.dump(self.edict2dict(config), f, sort_keys=True)
