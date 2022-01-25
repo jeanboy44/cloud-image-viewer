@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'resources/main_view2.ui'
+# Form implementation generated from reading ui file 'resources/main_view.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -70,8 +70,12 @@ class Ui_MainWindow(object):
         self.action_menu_view_filelist.setObjectName("action_menu_view_filelist")
         self.action_menu_settings_account = QtWidgets.QAction(MainWindow)
         self.action_menu_settings_account.setObjectName("action_menu_settings_account")
+        self.action_menu_file_upload = QtWidgets.QAction(MainWindow)
+        self.action_menu_file_upload.setObjectName("action_menu_file_upload")
         self.menu_file.addAction(self.action_menu_file_open)
         self.menu_file.addAction(self.action_menu_file_save)
+        self.menu_file.addSeparator()
+        self.menu_file.addAction(self.action_menu_file_upload)
         self.menu_view.addAction(self.action_menu_view_main)
         self.menu_view.addAction(self.action_menu_view_list)
         self.menu_view.addAction(self.action_menu_view_grid)
@@ -97,6 +101,7 @@ class Ui_MainWindow(object):
         self.action_menu_view_grid.setText(_translate("MainWindow", "grid"))
         self.action_menu_view_filelist.setText(_translate("MainWindow", "file list"))
         self.action_menu_settings_account.setText(_translate("MainWindow", "account"))
+        self.action_menu_file_upload.setText(_translate("MainWindow", "Upload"))
 
 
 if __name__ == "__main__":
