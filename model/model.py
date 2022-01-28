@@ -1,8 +1,11 @@
 import yaml
-from easydict import EasyDict as edict
+
+# from easydict import EasyDict as edict
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QImage, QStandardItem, QStandardItemModel
 from PyQt5.QtCore import Qt
+
+CONFIG_PATH = "config.yml"
 
 
 class Model(QObject):
@@ -13,11 +16,14 @@ class Model(QObject):
         self._root_dir = ""
         self._current_path = ""
         self._main_image = None
-        self.current_connection = None
+        self._connection_name = None
+        self._connection_status = False
 
     root_dir_selected = pyqtSignal(str)
     current_path_selected = pyqtSignal(str)
     main_image_loaded = pyqtSignal(QImage)
+    connection_name_changed = pyqtSignal(str)
+    connection_status_changed = pyqtSignal(bool)
 
     @property
     def root_dir(self):
@@ -46,43 +52,64 @@ class Model(QObject):
         self._main_image = value
         self.main_image_loaded.emit(value)
 
+    @property
+    def connection_name(self):
+        return self._connection_name
+
+    @connection_name.setter
+    def connection_name(self, value):
+        self._connection_name = value
+        self.connection_name_changed.emit(value)
+
+    @property
+    def connection_status(self):
+        return self._connection_status
+
+    @connection_status.setter
+    def connection_status(self, value):
+        self._connection_status = value
+        self.connection_status_changed.emit(value)
+
 
 class Settings(QObject):
     def __init__(self):
         super().__init__()
+        self.name = "cloud-image_viewer"
+        self.accounts = {
+            "azure_connection1": {
+                "type": "azure",
+                "account_name": "",
+                "connection_str": "",
+                "container_name": "",
+            },
+            "aws_connection1": {
+                "type": "aws",
+                "access_key": "",
+                "secret_access_key": "",
+                "bucket_name": "",
+            },
+        }
+        self.load_config()
+
+    def load_config(self):
+        """"""
         try:
-            with open("config.yml") as f:
-                self.config = yaml.load(f, Loader=yaml.FullLoader)
+            with open(CONFIG_PATH) as f:
+                config = yaml.load(f, Loader=yaml.FullLoader)
+            self.name = config["name"]
+            self.accounts = config["accounts"]
+
         except:
-            self.initialize()
-            with open("config.yml") as f:
-                self.config = yaml.load(f, Loader=yaml.FullLoader)
+            self.save_config()
 
-        self.config = edict(self.config)
-
-    def initialize(self):
-        config = edict({})
-        config.name = "cloud-image_viewer"
-        config.account_name = ""
-        config.connection_str = ""
-        config.container_name = ""
-        with open("config.yml", mode="w", encoding="utf8") as f:
-            yaml.dump(self.edict2dict(config), f, sort_keys=True)
-
-    def edict2dict(self, edict_obj):
-        dict_obj = {}
-
-        for key, vals in edict_obj.items():
-            if isinstance(vals, edict):
-                dict_obj[key] = self.edict2dict(vals)
-            else:
-                dict_obj[key] = vals
-
-        return dict_obj
-
-    def save(self):
-        with open("config.yml", mode="w", encoding="utf8") as f:
-            yaml.dump(self.edict2dict(self.config), f, sort_keys=True)
+    def save_config(self):
+        """"""
+        config = {
+            "name": self.name,
+            "accounts": self.accounts,
+        }
+        with open(CONFIG_PATH, mode="w", encoding="utf8") as f:
+            yaml.dump(config, f, sort_keys=False)
 
 
 # class CloudFileModel(QStandardItemModel):

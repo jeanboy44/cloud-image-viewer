@@ -27,90 +27,104 @@ class MenuSettingsAccountDig(QDialog):
         self.ui = Ui_MenuSettingsAccountDialog()
         self.ui.setupUi(self)
 
-        self.thread = QThread(self)
+        # set combobox
+        self.connection_names = [key for key in self._mdl.settings.accounts.keys()]
+        self.ui.comboBox.addItems(self.connection_names)
+        self.select_connection_name()
+
+        self.connection_types = ["azure", "aws", "gcp"]
+        self.ui.comboBox_2.addItems(self.connection_types)
 
         # listen for model event signals
+        self.ui.comboBox.currentIndexChanged.connect(self.select_connection_name)
+        self.ui.comboBox_2.currentIndexChanged.connect(self.select_connection_type)
         self.ui.apply_pushButton_1.clicked.connect(self.click_apply)
         self.ui.connectiontest_pushButton_1.clicked.connect(self.click_connection_test)
         self.ui.edit_pushButton_1.clicked.connect(self.click_edit)
+        self.ui.save_pushButton_1.clicked.connect(self.click_save)
 
-        # initialize settigns
-        self.initialize()
+    @pyqtSlot()
+    def click_save(self):
+        # save it to settings
+        current_info = self._get_current_info()
+        connection_name = self.ui.comboBox.currentText()
+        self._mdl.settings.accounts[connection_name] = current_info
+        self._mdl.settings.save_config()
+
+        self.ui.comboBox_2.setEnabled(False)
+        self.ui.textEdit.setEnabled(False)
+        self.ui.textEdit_2.setEnabled(False)
+        self.ui.textEdit_3.setEnabled(False)
+        self.ui.edit_pushButton_1.setText("Edit")
 
     @pyqtSlot()
     def click_apply(self):
         # save it to settings
         connected = self.click_connection_test()
+        self._mdl.connection_name = self.ui.comboBox.currentText()
         if connected is True:
-            self._mdl.settings.config.account_name = (
-                self.ui.account_name_textedit_1.toPlainText()
-            )
-            self._mdl.settings.config.connection_str = (
-                self.ui.connection_str_textedit_1.toPlainText()
-            )
-            self._mdl.settings.config.container_name = (
-                self.ui.container_name_textedit_1.toPlainText()
-            )
-            self._mdl.settings.save()
-            self.ui.account_name_textedit_1.setEnabled(False)
-            self.ui.container_name_textedit_1.setEnabled(False)
-            self.ui.connection_str_textedit_1.setEnabled(False)
-            self.ui.edit_pushButton_1.setText("Edit")
-            self._mdl.current_connection = self._mctrl.get_container_client(
-                self._mdl.settings.config.connection_str,
-                self._mdl.settings.config.container_name,
-            )
+            self._mdl.click_save()
+            self._mdl.connection_status = True
         else:
-            self._mdl.current_connection = None
+            self._mdl.connection_status = False
 
     @pyqtSlot()
     def click_connection_test(self):
         # save it to settings
-        account_name = self.ui.account_name_textedit_1.toPlainText()
-        connection_str = self.ui.connection_str_textedit_1.toPlainText()
-        container_name = self.ui.container_name_textedit_1.toPlainText()
-        try:
-            container_client = self._mctrl.get_container_client(
-                connection_str, container_name
-            )
+        current_info = self._get_current_info()
+        test_result = self._mctrl.test_connection(current_info)
+        if test_result is True:
             self.ui.account1_label1.setText("Account1 [Connected]")
-            return container_client.exists()
-        except:
+        else:
             self.ui.account1_label1.setText("Account1 [Disconnected]")
-            print("Wrong connection information")
-            return False
 
     @pyqtSlot()
     def click_edit(self):
         if self.ui.edit_pushButton_1.text() == "Edit":
-            self.ui.account_name_textedit_1.setEnabled(True)
-            self.ui.container_name_textedit_1.setEnabled(True)
-            self.ui.connection_str_textedit_1.setEnabled(True)
+            self.ui.comboBox_2.setEnabled(True)
+            self.ui.textEdit.setEnabled(True)
+            self.ui.textEdit_2.setEnabled(True)
+            self.ui.textEdit_3.setEnabled(True)
             self.ui.edit_pushButton_1.setText("Cancel")
         else:
-            self.ui.account_name_textedit_1.setText(
-                self._mdl.settings.config.account_name
-            )
-            self.ui.container_name_textedit_1.setText(
-                self._mdl.settings.config.container_name
-            )
-            self.ui.connection_str_textedit_1.setText(
-                self._mdl.settings.config.connection_str
-            )
-            self.ui.account_name_textedit_1.setEnabled(False)
-            self.ui.container_name_textedit_1.setEnabled(False)
-            self.ui.connection_str_textedit_1.setEnabled(False)
+            self._load_connection_info()
+            self.ui.comboBox_2.setEnabled(False)
+            self.ui.textEdit.setEnabled(False)
+            self.ui.textEdit_2.setEnabled(False)
+            self.ui.textEdit_3.setEnabled(False)
             self.ui.edit_pushButton_1.setText("Edit")
 
-    def initialize(self):
-        self.ui.account_name_textedit_1.setText(self._mdl.settings.config.account_name)
-        self.ui.container_name_textedit_1.setText(
-            self._mdl.settings.config.container_name
-        )
-        self.ui.connection_str_textedit_1.setText(
-            self._mdl.settings.config.connection_str
-        )
-        self.click_apply()
+    @pyqtSlot()
+    def select_connection_name(self):
+        self.ui.account1_label1.setText(self.ui.comboBox.currentText())
+        self._load_connection_info()
+
+    @pyqtSlot()
+    def select_connection_type(self):
+        self._load_connection_info(include_type=False)
+
+    def _get_current_info(self):
+        current_info = {
+            "type": self.ui.comboBox_2.currentText(),
+            "account_name": self.ui.textEdit.toPlainText(),
+            "connection_str": self.ui.textEdit_2.toPlainText(),
+            "container_name": self.ui.textEdit_3.toPlainText(),
+        }
+
+        return current_info
+
+    def _load_connection_info(self, include_type=True):
+        con_info = self._mdl.settings.accounts[self.ui.comboBox.currentText()]
+        key_list = [key for key in con_info.keys() if key != "type"]  #
+        if include_type is True:
+            self.ui.label_2.setText("type")
+            self.ui.comboBox_2.setCurrentText(con_info["type"])
+        self.ui.label_3.setText(key_list[0])
+        self.ui.label_4.setText(key_list[1])
+        self.ui.label_5.setText(key_list[2])
+        self.ui.textEdit.setText(con_info[key_list[0]])
+        self.ui.textEdit_2.setText(con_info[key_list[1]])
+        self.ui.textEdit_3.setText(con_info[key_list[2]])
 
 
 class MenuFileUploadDig(QDialog):
