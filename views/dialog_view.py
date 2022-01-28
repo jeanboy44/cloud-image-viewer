@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 from PyQt5.QtCore import pyqtSlot, QThread, QObject, pyqtSignal
 from PyQt5.QtWidgets import QDialog, QFileDialog
@@ -124,10 +125,25 @@ class MenuFileUploadDig(QDialog):
         self.ui = Ui_MenuFileUploadDig()
         self.ui.setupUi(self)
 
+        self.uploader = FileUploader(
+            local_root_dir=self.ui.textEdit.toPlainText(),
+            cloud_root_dir=self.ui.textEdit_2.toPlainText(),
+            connector=self._mdl.current_connection,
+        )
+
+        self.init_widget()
+
+    def init_widget(self):
         # listen for model event signals
         self.ui.pushButton.clicked.connect(self.click_pushButton)
         self.ui.pushButton_2.clicked.connect(self.click_pushButton_2)
+        self.ui.pushButton_3.clicked.connect(self.click_pushButton_3)
 
+        self.ui.progressBar.setValue(0)
+        self.uploader.progress_.connect(self.ui.progressBar.setValue)
+        self.uploader.progress_max.connect(self.ui.progressBar.setMaximum)
+
+    @pyqtSlot()
     def click_pushButton(self):
         local_dir = QFileDialog.getExistingDirectory(
             None,
@@ -137,14 +153,105 @@ class MenuFileUploadDig(QDialog):
         )
         self.ui.textEdit.setText(local_dir)
 
+    @pyqtSlot()
     def click_pushButton_2(self):
+        self.uploader.local_root_dir = self.ui.textEdit.toPlainText()
+        self.uploader.cloud_root_dir = self.ui.textEdit_2.toPlainText()
+
+        if self.ui.pushButton_2.text() == "Paused":
+            self.ui.pushButton_2.setText("Resume")
+            self.uploader.pause()
+        else:
+            self.ui.pushButton_2.setText("Paused")
+            """Upload files in local directory to blob"""
+            self.uploader.resume()
+            self.uploader.start()
+
+    @pyqtSlot()
+    def click_pushButton_3(self):
+        self.uploader.cancel()
+        self.uploader.stop()
+
+
+class FileUploader(QThread):
+    progress_ = pyqtSignal(int)
+    progress_max = pyqtSignal(int)
+
+    def __init__(self, local_root_dir, cloud_root_dir, connector, parent=None):
+        super(FileUploader, self).__init__(parent)
+        self._local_root_dir = local_root_dir
+        self._cloud_root_dir = cloud_root_dir
+        self._status = "canceled"  # running, canceled, paused
+        self._file_list = None
+        self.connector = connector
+        self.threadactive = False
+
+    @property
+    def local_root_dir(self):
+        return self._local_root_dir
+
+    @local_root_dir.setter
+    def local_root_dir(self, value):
+        self._local_root_dir = value
+
+    @property
+    def cloud_root_dir(self):
+        return self._cloud_root_dir
+
+    @cloud_root_dir.setter
+    def cloud_root_dir(self, value):
+        self._cloud_root_dir = value
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, value):
+        self._status = value
+
+    def run(self):
         """Upload files in local directory to blob"""
-        local_root_dir = self.ui.textEdit.toPlainText()
-        cloud_root_dir = self.ui.textEdit_2.toPlainText()
-        for path in Path(local_root_dir).rglob("*"):
-            if Path(path).is_file():
-                file = Path(path).relative_to(local_root_dir)
-                file_path = Path(cloud_root_dir).joinpath(file).as_posix()
-                print(path)
-                with open(path, "rb") as data:
-                    self._mdl.current_connection.upload_blob(name=file_path, data=data)
+        self.threadactive = True
+
+        # Read List of Blobs
+        if self._file_list is None:
+            self._file_list = []
+            for path in Path(self.local_root_dir).rglob("*"):
+                if Path(path).is_file():
+                    self._file_list.append(path)
+            self.progress_max.emit(len(self._file_list))
+
+        # Upload
+        for i, path in enumerate(self._file_list):
+            file = Path(path).relative_to(self.local_root_dir)
+            file_path = Path(self.cloud_root_dir).joinpath(file).as_posix()
+            with open(path, "rb") as data:
+                self.connector.upload_blob(name=file_path, data=data)
+            self.progress_.emit(i + 1)
+
+            while self.status == "paused":
+                time.sleep(0)
+
+            if self.status == "canceled":
+                self.progress_.emit(0)
+                break
+
+    def resume(self):
+        self.status = "running"
+
+    def pause(self):
+        self.status = "paused"
+
+    def cancel(self):
+        self.status = "canceled"
+
+    def stop(self):
+        # self.power = False
+        # self.quit()
+        # self.wait(2000)
+        self.threadactive = False
+        self.wait(2000)
+
+
+# class MenuOpenRemoteDialog(QDialog):

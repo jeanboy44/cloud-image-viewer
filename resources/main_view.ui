@@ -85,6 +85,7 @@
     <addaction name="action_menu_file_save"/>
     <addaction name="separator"/>
     <addaction name="action_menu_file_upload"/>
+    <addaction name="actionOpen_Remote"/>
    </widget>
    <widget class="QMenu" name="menu_view">
     <property name="title">
@@ -148,6 +149,11 @@
   <action name="action_menu_file_upload">
    <property name="text">
     <string>Upload</string>
+   </property>
+  </action>
+  <action name="actionOpen_Remote">
+   <property name="text">
+    <string>Open Remote</string>
    </property>
   </action>
  </widget>
