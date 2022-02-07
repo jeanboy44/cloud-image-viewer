@@ -82,10 +82,10 @@
      <string>File</string>
     </property>
     <addaction name="action_menu_file_open"/>
+    <addaction name="action_menu_file_open_cloud"/>
     <addaction name="action_menu_file_save"/>
     <addaction name="separator"/>
     <addaction name="action_menu_file_upload"/>
-    <addaction name="actionOpen_Remote"/>
    </widget>
    <widget class="QMenu" name="menu_view">
     <property name="title">
@@ -151,9 +151,9 @@
     <string>Upload</string>
    </property>
   </action>
-  <action name="actionOpen_Remote">
+  <action name="action_menu_file_open_cloud">
    <property name="text">
-    <string>Open Remote</string>
+    <string>Open Cloud</string>
    </property>
   </action>
  </widget>

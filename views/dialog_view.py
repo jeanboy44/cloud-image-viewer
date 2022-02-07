@@ -61,12 +61,12 @@ class MenuSettingsAccountDig(QDialog):
     def click_apply(self):
         # save it to settings
         connected = self.click_connection_test()
-        self._mdl.connection_name = self.ui.comboBox.currentText()
+        self._mdl.cloud_file_model.connection_name = self.ui.comboBox.currentText()
         if connected is True:
             self._mdl.click_save()
-            self._mdl.connection_status = True
+            self._mdl.cloud_file_model.connection_status = True
         else:
-            self._mdl.connection_status = False
+            self._mdl.cloud_file_model.connection_status = False
 
     @pyqtSlot()
     def click_connection_test(self):

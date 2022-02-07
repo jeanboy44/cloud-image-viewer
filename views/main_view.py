@@ -33,30 +33,41 @@ class MainView(QMainWindow):
         del self._ui.scrollAreaWidgetContents_2
         self._ui.scrollArea.setWidget(self._ui.canvas)
 
-        # set model to side bar
-        self._ui.side_bar.setModel(self._mctrl.file_system_model)
-
         # connect widgets to controller
         self._ui.action_menu_file_open.triggered.connect(self.click_file_open)
+        self._ui.action_menu_file_open_cloud.triggered.connect(
+            self.click_file_open_cloud
+        )
         self._ui.action_menu_file_upload.triggered.connect(self.click_file_upload)
         self._ui.action_menu_settings_account.triggered.connect(
             self.click_settings_account
         )
-        side_bar_selmodel = self._ui.side_bar.selectionModel()
-        side_bar_selmodel.selectionChanged.connect(self._mctrl.select_current_path)
-        # self._ui.side_bar.clicked.connect(self._mctrl.select_current_path)
 
         # listen for model event signals
         self._mdl.root_dir_selected.connect(self.on_root_dir_selected)
+        self._mdl.cloud_root_dir_selected.connect(self.on_cloud_root_dir_selected)
         self._mdl.main_image_loaded.connect(self._ui.canvas.on_main_image_loaded)
 
     @pyqtSlot(str)
     def on_root_dir_selected(self, value):
         if value != "":
-            root = self._mctrl.file_system_model.setRootPath(value)
-            self._ui.side_bar.setModel(self._mctrl.file_system_model)
+            root = self._mdl.file_system_model.setRootPath(value)
+            self._ui.side_bar.setModel(self._mdl.file_system_model)
+            side_bar_selmodel = self._ui.side_bar.selectionModel()
+            side_bar_selmodel.selectionChanged.connect(self._mctrl.select_current_path)
             self._ui.side_bar.setRootIndex(root)
             self._ui.side_bar.show()
+
+    @pyqtSlot(str)
+    def on_cloud_root_dir_selected(self, value):
+        print(value)
+        root = self._mdl.cloud_file_model.setRootPath(value)
+        self._mdl.cloud_file_model.listdir(value)
+        self._ui.side_bar.setModel(self._mdl.cloud_file_model)
+        # side_bar_selmodel = self._ui.side_bar.selectionModel()
+        # side_bar_selmodel.selectionChanged.connect(self._mctrl.select_current_path)
+        # self._ui.side_bar.setRootIndex(root)
+        self._ui.side_bar.show()
 
     def wheelEvent(self, event):
         print("wheel")
@@ -65,6 +76,15 @@ class MainView(QMainWindow):
     @pyqtSlot()
     def click_file_open(self):
         self._mdl.root_dir = QFileDialog.getExistingDirectory(
+            None,
+            "Open Directory",
+            DEFAULT_OPEN_DIR_PATH,
+            # QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
+        )
+
+    @pyqtSlot()
+    def click_file_open_cloud(self):
+        self._mdl.cloud_root_dir = QFileDialog.getExistingDirectory(
             None,
             "Open Directory",
             DEFAULT_OPEN_DIR_PATH,
