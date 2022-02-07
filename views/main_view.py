@@ -64,8 +64,10 @@ class MainView(QMainWindow):
         root = self._mdl.cloud_file_model.setRootPath(value)
         self._mdl.cloud_file_model.listdir(value)
         self._ui.side_bar.setModel(self._mdl.cloud_file_model)
-        # side_bar_selmodel = self._ui.side_bar.selectionModel()
-        # side_bar_selmodel.selectionChanged.connect(self._mctrl.select_current_path)
+        side_bar_selmodel = self._ui.side_bar.selectionModel()
+        side_bar_selmodel.selectionChanged.connect(
+            self._mctrl.select_cloud_current_path
+        )
         # self._ui.side_bar.setRootIndex(root)
         self._ui.side_bar.show()
 

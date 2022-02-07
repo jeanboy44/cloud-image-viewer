@@ -116,29 +116,7 @@ class CloudFileModel(QStandardItemModel):
 
     def __init__(self):
         super().__init__()
-        self._connection_name = None
-        self._connection_status = False
-
-    connection_name_changed = pyqtSignal(str)
-    connection_status_changed = pyqtSignal(bool)
-
-    @property
-    def connection_name(self):
-        return self._connection_name
-
-    @connection_name.setter
-    def connection_name(self, value):
-        self._connection_name = value
-        self.connection_name_changed.emit(value)
-
-    @property
-    def connection_status(self):
-        return self._connection_status
-
-    @connection_status.setter
-    def connection_status(self, value):
-        self._connection_status = value
-        self.connection_status_changed.emit(value)
+        self.conn = None
 
     @pyqtSlot()
     def listdir(self, dir):
@@ -161,13 +139,18 @@ class CloudFileModel(QStandardItemModel):
     #     return list_files
 
     def _listdir(self, dir):
-        print(self.connection_status)
-        if self.connection_status is True:
-            list_files = []
+        if self.conn.check_connection() is True:
+            list_files = [
+                {
+                    "name": "..",
+                    "path": Path(dir).as_posix(),
+                    "isfile": str(False),
+                }
+            ]
             for path in Path(dir).glob("*"):
                 f_ = {
-                    "path": path.as_posix(),
                     "name": path.name,
+                    "path": path.as_posix(),
                     "isfile": str(path.is_file()),
                 }
                 list_files.append(f_)
@@ -181,11 +164,17 @@ class CloudFileModel(QStandardItemModel):
         for d in data:
             root.appendRow(
                 [
-                    QStandardItem(d["path"]),
                     QStandardItem(d["name"]),
+                    QStandardItem(d["path"]),
                     QStandardItem(d["isfile"]),
                 ]
             )
+
+    # def double_clicked(self, index):
+    #     item = self.model().item(index.row(), index.column())
+    #     strData = item.data(0).toPyObject()
+    #     # self.treeMedia.currentIndex()
+    #     print("" + str(strData))
 
         # self.setRowCount(0)
         # if root is None:

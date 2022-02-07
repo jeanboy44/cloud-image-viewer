@@ -17,12 +17,14 @@ class MainController(QObject):
         # initialize
         self.conn = Connector()
         self._on_open_app()
+        self._mdl.cloud_file_model.conn = self.conn
 
         # listen for model event signals
         self._mdl.current_path_selected.connect(self._on_current_path_selected)
-        self._mdl.cloud_file_model.connection_name_changed.connect(
-            self._connection_name_changed
-        )
+        # self._mdl.cloud_file_model.doubleClicked.connect(self._mdl.d)
+        # self._mdl.cloud_file_model.connection_name_changed.connect(
+        #     self._connection_name_changed
+        # )
 
     @pyqtSlot("QItemSelection", "QItemSelection")
     def select_current_path(self, selected, deselected):
@@ -31,6 +33,18 @@ class MainController(QObject):
         # print(indices)
         # for index in indices:
         self._mdl.current_path = self._mdl.file_system_model.filePath(indices[0])
+
+    @pyqtSlot("QItemSelection", "QItemSelection")
+    def select_cloud_current_path(self, selected, deselected):
+        indices = selected.indexes()
+        # print(len(indices))
+        # print(indices)
+        # for index in indices:
+        # print(indices)
+        print(self._mdl.cloud_file_model.itemFromIndex(indices[0]))
+        tmp = self._mdl.cloud_file_model.itemFromIndex(indices[0])
+        print(tmp.data())
+        self._mdl.current_path = self._mdl.cloud_file_model.itemFromIndex(indices[0])
 
     @pyqtSlot(str)
     def _on_current_path_selected(self, value):
@@ -44,20 +58,20 @@ class MainController(QObject):
             self._mdl.main_image = reader.read()
             # self.canvas.load_pixmap(QPixmap.fromImage(image))
 
-    @pyqtSlot(str)
-    def _connection_name_changed(self, value):
-        if self._mdl.cloud_file_model.connection_status is True:
-            info = self._mdl.settings.accounts[value]
-            self.conn.connect(info)
+    # @pyqtSlot(str)
+    # def _connection_name_changed(self, value):
+    #     if self._mdl.cloud_file_model.connection_status is True:
+    #         info = self._mdl.settings.accounts[value]
+    #         self.conn.connect(info)
 
-    def test_connection(self, connection_info):
-        try:
-            conn = self.conn.connect(connection_info, return_=True)
-            print("Connected Successfully")
-            return conn.exists()
-        except:
-            print("Wrong connection information")
-            return False
+    # def test_connection(self, connection_info):
+    #     try:
+    #         conn = self.conn.connect(connection_info, return_=True)
+    #         print("Connected Successfully")
+    #         return conn.exists()
+    #     except:
+    #         print("Wrong connection information")
+    #         return False
 
     def wheelEvent(self, event):
         if event.modifiers() & Qt.ControlModifier:
@@ -120,17 +134,44 @@ class Connector:
     def connect(self, connection_info=None, return_=False):
         if connection_info is None:
             connection_info = self.connection_info
+        else:
+            self.connection_info = connection_info
 
         if connection_info["type"] == "azure":
             connector = self.connect_azure_blob(
                 connection_str=connection_info["connection_str"],
                 container_name=connection_info["container_name"],
             )
+        else:
+            connector = None
 
         if return_ is True:
             return connector
         else:
             self.connector = connector
+
+    def test(self, connection_info=None):
+        if connection_info is None:
+            connection_info = self.connection_info
+        try:
+            conn = self.conn.connect(connection_info, return_=True)
+            print("Connected Successfully")
+            return self.check_connection(connection_info["type"])
+        except:
+            print("Wrong connection information")
+            return False
+
+    def check_connection(self, connection_type=None):
+        if connection_type is None:
+            connection_type = self.connection_info["type"]
+
+        if connection_type == "azure":
+            return self.connector.exists()
+        elif connection_type == "aws":
+            return False
+
+    def test_azure_blob(self, connector):
+        return connector.exists()
 
     def connect_azure_blob(self, connection_str, container_name):
         blob_service_client = BlobServiceClient.from_connection_string(connection_str)
