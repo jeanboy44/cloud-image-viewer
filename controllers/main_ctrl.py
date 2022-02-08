@@ -36,15 +36,23 @@ class MainController(QObject):
 
     @pyqtSlot("QItemSelection", "QItemSelection")
     def select_cloud_current_path(self, selected, deselected):
+        """select cloud current path
+        index 0: name
+        index 1: path
+        index 2: id directory
+        """
         indices = selected.indexes()
         # print(len(indices))
         # print(indices)
         # for index in indices:
-        # print(indices)
-        print(self._mdl.cloud_file_model.itemFromIndex(indices[0]))
-        tmp = self._mdl.cloud_file_model.itemFromIndex(indices[0])
-        print(tmp.data())
-        self._mdl.current_path = self._mdl.cloud_file_model.itemFromIndex(indices[0])
+        #     print(index)
+        #     item = self._mdl.cloud_file_model.itemFromIndex(index)
+        #     print(item.text())
+        # print(self._mdl.cloud_file_model.itemFromIndex(indices[0]))
+        # item = self._mdl.cloud_file_model.itemFromIndex(indices[0])
+        # print(item.data())
+        item = self._mdl.cloud_file_model.itemFromIndex(indices[1])
+        self._mdl.current_path = item.text()
 
     @pyqtSlot(str)
     def _on_current_path_selected(self, value):
