@@ -108,11 +108,7 @@ class Settings(QObject):
 
 
 class CloudFileModel(QStandardItemModel):
-    """
-    사용자 데이터 모델 설정
-    [{"type":str, "objects":[str, ...]}, ...]
-    위의 데이터 형식을 이용하여 서브 아이템을 가지는 모델을 생성
-    """
+    """ """
 
     def __init__(self):
         super().__init__()
@@ -160,7 +156,8 @@ class CloudFileModel(QStandardItemModel):
             return []
 
     def _append_data(self, data, root=None):
-        root = self.invisibleRootItem()
+        if root is None:
+            root = self.invisibleRootItem()
         for d in data:
             root.appendRow(
                 [
@@ -176,26 +173,26 @@ class CloudFileModel(QStandardItemModel):
     #     # self.treeMedia.currentIndex()
     #     print("" + str(strData))
 
-        # self.setRowCount(0)
-        # if root is None:
-        #     root = self.invisibleRootItem()
-        # seen = {}
-        # values = deque(data)
-        # while values:
-        #     value = values.popleft()
-        #     if value["level"] == 0:
-        #         parent = root
-        #     else:
-        #         pid = value["parent_ID"]
-        #         if pid not in seen:
-        #             values.append(value)
-        #             continue
-        #         parent = seen[pid]
-        #     dbid = value["dbID"]
-        #     parent.appendRow(
-        #         [
-        #             QStandardItem(value["short_name"]),
-        #             QStandardItem(str(dbid)),
-        #         ]
-        #     )
-        #     seen[dbid] = parent.child(parent.rowCount() - 1)
+    # self.setRowCount(0)
+    # if root is None:
+    #     root = self.invisibleRootItem()
+    # seen = {}
+    # values = deque(data)
+    # while values:
+    #     value = values.popleft()
+    #     if value["level"] == 0:
+    #         parent = root
+    #     else:
+    #         pid = value["parent_ID"]
+    #         if pid not in seen:
+    #             values.append(value)
+    #             continue
+    #         parent = seen[pid]
+    #     dbid = value["dbID"]
+    #     parent.appendRow(
+    #         [
+    #             QStandardItem(value["short_name"]),
+    #             QStandardItem(str(dbid)),
+    #         ]
+    #     )
+    #     seen[dbid] = parent.child(parent.rowCount() - 1)
