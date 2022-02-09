@@ -128,7 +128,8 @@ class CloudFileModel(QStandardItemModel):
         list_files = self._listdir(dir)
         self._append_data(list_files)
 
-    def setRootPath(self, dir):
+    @pyqtSlot()
+    def clear(self):
         self.removeRows(0, self.rowCount())
 
     def _listdir(self, dir):

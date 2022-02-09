@@ -42,7 +42,6 @@ class MainController(QObject):
         index 2: id directory
         """
         indices = selected.indexes()
-        print(indices)
         # print(len(indices))
         # print(indices)
         # for index in indices:
@@ -52,8 +51,11 @@ class MainController(QObject):
         # print(self._mdl.cloud_file_model.itemFromIndex(indices[0]))
         # item = self._mdl.cloud_file_model.itemFromIndex(indices[0])
         # print(item.data())
-        item = self._mdl.cloud_file_model.itemFromIndex(indices[1])
-        self._mdl.current_path = item.text()
+        try:
+            item = self._mdl.cloud_file_model.itemFromIndex(indices[1])
+            self._mdl.current_path = item.text()
+        except:
+            pass
 
     @pyqtSlot("QModelIndex")
     def double_click_cloud_current_path(self, index):
@@ -65,9 +67,6 @@ class MainController(QObject):
         name = self._mdl.cloud_file_model.item(index.row(), 0).text()
         path = self._mdl.cloud_file_model.item(index.row(), 1).text()
         isdir = self._mdl.cloud_file_model.item(index.row(), 2).text()
-        print(name)
-        print(path)
-        print(isdir)
         if isdir == "True":
             self._mdl.cloud_root_dir = path
         else:

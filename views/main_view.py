@@ -65,14 +65,13 @@ class MainView(QMainWindow):
     @pyqtSlot(str)
     def on_cloud_root_dir_selected(self, value):
         print(value)
-        root = self._mdl.cloud_file_model.setRootPath(value)
+        self._mdl.cloud_file_model.clear()
         self._mdl.cloud_file_model.list_dir(value)
         self._ui.side_bar.setModel(self._mdl.cloud_file_model)
         side_bar_selmodel = self._ui.side_bar.selectionModel()
-        # side_bar_selmodel.selectionChanged.connect(
-        #     self._mctrl.select_cloud_current_path
-        # )
-        # self._ui.side_bar.setRootIndex(root)
+        side_bar_selmodel.selectionChanged.connect(
+            self._mctrl.select_cloud_current_path
+        )
         self._ui.side_bar.show()
 
     def wheelEvent(self, event):
