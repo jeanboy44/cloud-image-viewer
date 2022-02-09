@@ -113,41 +113,38 @@ class CloudFileModel(QStandardItemModel):
     def __init__(self):
         super().__init__()
         self.conn = None
+        self.current_dir = None
+
+    # @pyqtSlot()
+    # def list_dir(self, dir):
+    #     self.current_dir = dir
+    #     list_files = self._listdir(dir)
+    #     self._append_data(list_files)
 
     @pyqtSlot()
-    def listdir(self, dir):
+    def list_dir(self, dir):
+        # dir = obj.item.text()
+        self.current_dir = dir
         list_files = self._listdir(dir)
         self._append_data(list_files)
 
     def setRootPath(self, dir):
         self.removeRows(0, self.rowCount())
 
-    # def _listdir(self, dir):
-    #     list_files = []
-    #     for path in Path(dir).glob("*"):
-    #         f_ = {
-    #             "path": path.as_posix(),
-    #             "name": path.name,
-    #             "isfile": str(path.is_file()),
-    #         }
-    #         list_files.append(f_)
-
-    #     return list_files
-
     def _listdir(self, dir):
         if self.conn.check_connection() is True:
             list_files = [
                 {
                     "name": "..",
-                    "path": Path(dir).as_posix(),
-                    "isfile": str(False),
+                    "path": Path(self.current_dir).parent.as_posix(),
+                    "isdir": str(True),
                 }
             ]
             for path in Path(dir).glob("*"):
                 f_ = {
                     "name": path.name,
                     "path": path.as_posix(),
-                    "isfile": str(path.is_file()),
+                    "isdir": str(path.is_dir()),
                 }
                 list_files.append(f_)
 
@@ -155,15 +152,18 @@ class CloudFileModel(QStandardItemModel):
         else:
             return []
 
-    def _append_data(self, data, root=None):
-        if root is None:
-            root = self.invisibleRootItem()
+    def _append_data(self, data, dir=None):
+        """
+        dir (QStandardItem): directory to open
+        """
+        if dir is None:
+            dir = self.invisibleRootItem()
         for d in data:
-            root.appendRow(
+            dir.appendRow(
                 [
                     QStandardItem(d["name"]),
                     QStandardItem(d["path"]),
-                    QStandardItem(d["isfile"]),
+                    QStandardItem(d["isdir"]),
                 ]
             )
 

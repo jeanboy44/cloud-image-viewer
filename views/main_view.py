@@ -34,6 +34,10 @@ class MainView(QMainWindow):
         self._ui.scrollArea.setWidget(self._ui.canvas)
 
         # connect widgets to controller
+        self._ui.side_bar.doubleClicked.connect(
+            self._mctrl.double_click_cloud_current_path
+        )
+
         self._ui.action_menu_file_open.triggered.connect(self.click_file_open)
         self._ui.action_menu_file_open_cloud.triggered.connect(
             self.click_file_open_cloud
@@ -62,12 +66,12 @@ class MainView(QMainWindow):
     def on_cloud_root_dir_selected(self, value):
         print(value)
         root = self._mdl.cloud_file_model.setRootPath(value)
-        self._mdl.cloud_file_model.listdir(value)
+        self._mdl.cloud_file_model.list_dir(value)
         self._ui.side_bar.setModel(self._mdl.cloud_file_model)
         side_bar_selmodel = self._ui.side_bar.selectionModel()
-        side_bar_selmodel.selectionChanged.connect(
-            self._mctrl.select_cloud_current_path
-        )
+        # side_bar_selmodel.selectionChanged.connect(
+        #     self._mctrl.select_cloud_current_path
+        # )
         # self._ui.side_bar.setRootIndex(root)
         self._ui.side_bar.show()
 
