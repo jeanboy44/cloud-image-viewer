@@ -89,12 +89,13 @@ class MainView(QMainWindow):
 
     @pyqtSlot()
     def click_file_open_cloud(self):
-        self._mdl.cloud_root_dir = QFileDialog.getExistingDirectory(
-            None,
-            "Open Directory",
-            DEFAULT_OPEN_DIR_PATH,
-            # QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
-        )
+        self._mdl.cloud_root_dir = "kfoodsample"
+        # self._mdl.cloud_root_dir = QFileDialog.getExistingDirectory(
+        #     None,
+        #     "Open Directory",
+        #     DEFAULT_OPEN_DIR_PATH,
+        #     # QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
+        # )
 
     @pyqtSlot()
     def click_settings_account(self):
