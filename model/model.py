@@ -133,21 +133,44 @@ class CloudFileModel(QStandardItemModel):
         self.removeRows(0, self.rowCount())
 
     def _listdir(self, dir):
+        print(f"_listdir: dir: {dir}")
+        # if self.conn.check_connection() is True:
+        #     yield {
+        #             "name": "..",
+        #             "path": Path(self.current_dir).parent.as_posix(),
+        #             "isdir": str(True),
+        #         }
+
+        # paths = self.conn.get_list(dir)
+        # for path in paths:
+        #     path = Path(path)
+        #     f_ = {
+        #         "name": path.name,
+        #         "path": path.as_posix(),
+        #         "isdir": str(path.is_dir()),
+        #     }
+        #     list_files.append(f_)
+
+        # return list_files
+
         if self.conn.check_connection() is True:
+            parent_dir = Path(self.current_dir).parent.as_posix()
+            if parent_dir == ".":
+                parent_dir = ""
             list_files = [
                 {
                     "name": "..",
-                    "path": Path(self.current_dir).parent.as_posix(),
+                    "path": parent_dir,
                     "isdir": str(True),
                 }
             ]
-            paths = self.conn.get_list(dir)
-            for path in paths:
+            paths, isdirs = self.conn.get_list(dir)
+            for i, path in enumerate(paths):
                 path = Path(path)
                 f_ = {
                     "name": path.name,
                     "path": path.as_posix(),
-                    "isdir": str(path.is_dir()),
+                    "isdir": str(isdirs[i]),
                 }
                 list_files.append(f_)
 

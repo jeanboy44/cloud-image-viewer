@@ -89,7 +89,7 @@ class MainView(QMainWindow):
 
     @pyqtSlot()
     def click_file_open_cloud(self):
-        self._mdl.cloud_root_dir = "kfoodsample"
+        self._mdl.cloud_root_dir = "kfoodsample/구이"
         # self._mdl.cloud_root_dir = QFileDialog.getExistingDirectory(
         #     None,
         #     "Open Directory",

@@ -227,24 +227,63 @@ class Connector:
     def download(self):
         """"""
 
-    def _walk_blob_hierarchy(self, prefix=""):
-        for item in self.connector.walk_blobs(name_starts_with=prefix):
-            print(item.name)
-            if isinstance(item, BlobPrefix):
-                self._walk_blob_hierarchy(prefix=item.name)
-            else:
-                yield item.name
+    # def _walk_blob_hierarchy(self, prefix=""):
+    #     for item in self.connector.walk_blobs(name_starts_with=prefix):
+    #         if isinstance(item, BlobPrefix):
+    #             self._walk_blob_hierarchy(prefix=item.name)
+    #         else:
+    #             yield item.name
+
+    # def walk_blob_hierarchy(self, prefix=""):
+    #     depth = 1
+    #     separator = "   "
+    #     for item in self.connector.walk_blobs(name_starts_with=prefix):
+    #         short_name = item.name[len(prefix) :]
+    #         if isinstance(item, BlobPrefix):
+    #             print("F: " + separator * depth + short_name)
+    #             depth += 1
+    #             self.walk_blob_hierarchy(prefix=item.name)
+    #             depth -= 1
+    #         else:
+    #             message = "B: " + separator * depth + short_name
+    #             results = list(self.connector.list_blobs(name_starts_with=item.name))
 
     def get_list(self, path):
         """"""
+        print(f"get_list-path: {path}")
+        # for item in self.connector.walk_blobs(name_starts_with=path):
+        #     if isinstance(item, BlobPrefix):
+        #         for item in self.connector.walk_blobs(name_starts_with=item.name):
+        #             print("1")
+        #             print(isinstance(item, BlobPrefix))
+        #             print(type(item))
+        #             print(item)
+        #     else:
+        #         print("2")
+        #         print(isinstance(item, BlobPrefix))
+        #         print(type(item))
+        #         print(item)
+        #     # if isinstance(item, BlobPrefix):
+        #     #     print(item.name)
+        #     #     self._walk_blob_hierarchy(prefix=item.name)
+        #     # else:
+        #     #     print(item.name)
         if self.connection_type == "azure":
             path_list = []
-            for blob in self._walk_blob_hierarchy(prefix=path):
-                print(f"name: {blob.name}")
-                path_list.append(blob.name)
+            isdir_list = []
+            if path == "":
+                for blob in self.connector.walk_blobs(name_starts_with=path):
+                    path_list.append(blob.name)
+                    isdir_list.append(isinstance(blob, BlobPrefix))
+            else:
+                for blob in self.connector.walk_blobs(name_starts_with=path):
+                    for blob in self.connector.walk_blobs(name_starts_with=blob.name):
+                        path_list.append(blob.name)
+                        isdir_list.append(isinstance(blob, BlobPrefix))
+
             # path_list = [
             #     blob.name for blob in self.connector.walk_blobs(name_starts_with=path)
             # ]
-            return path_list
+            return path_list, isdir_list
         elif self.connection_type == "aws":
             return False
