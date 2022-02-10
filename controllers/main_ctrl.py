@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QFileDialog, QFileSystemModel
 from PyQt5.QtGui import QImageReader
 
 from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobPrefix
 
 # from model import CloudFileModel
 
@@ -155,7 +156,18 @@ class MainController(QObject):
 class Connector:
     def __init__(self, type="azure"):
         self.connector = None
-        self.connection_info = None
+        self.connection_type = None
+        self._connection_info = None
+
+    @property
+    def connection_info(self):
+        return self._connection_info
+
+    @connection_info.setter
+    def connection_info(self, value):
+        self._connection_info = value
+        if value is not None:
+            self.connection_type = value["type"]
 
     def connect(self, connection_info=None, return_=False):
         if connection_info is None:
@@ -163,10 +175,10 @@ class Connector:
         else:
             self.connection_info = connection_info
 
-        if connection_info["type"] == "azure":
+        if self.connection_type == "azure":
             connector = self.connect_azure_blob(
-                connection_str=connection_info["connection_str"],
-                container_name=connection_info["container_name"],
+                connection_str=self.connection_info["connection_str"],
+                container_name=self.connection_info["container_name"],
             )
         else:
             connector = None
@@ -189,7 +201,7 @@ class Connector:
 
     def check_connection(self, connection_type=None):
         if connection_type is None:
-            connection_type = self.connection_info["type"]
+            connection_type = self.connection_type
 
         if connection_type == "azure":
             return self.connector.exists()
@@ -205,11 +217,34 @@ class Connector:
 
         return container_client
 
-    def upload(self):
+    def upload(self, src, dst):
         """"""
+        if self.connection_type == "azure":
+            self.connector.upload_blob(name=dst, data=src)
+        elif self.connection_type == "aws":
+            return False
 
     def download(self):
         """"""
 
-    def get_list(self):
+    def _walk_blob_hierarchy(self, prefix=""):
+        for item in self.connector.walk_blobs(name_starts_with=prefix):
+            print(item.name)
+            if isinstance(item, BlobPrefix):
+                self._walk_blob_hierarchy(prefix=item.name)
+            else:
+                yield item.name
+
+    def get_list(self, path):
         """"""
+        if self.connection_type == "azure":
+            path_list = []
+            for blob in self._walk_blob_hierarchy(prefix=path):
+                print(f"name: {blob.name}")
+                path_list.append(blob.name)
+            # path_list = [
+            #     blob.name for blob in self.connector.walk_blobs(name_starts_with=path)
+            # ]
+            return path_list
+        elif self.connection_type == "aws":
+            return False

@@ -141,7 +141,9 @@ class CloudFileModel(QStandardItemModel):
                     "isdir": str(True),
                 }
             ]
-            for path in Path(dir).glob("*"):
+            paths = self.conn.get_list(dir)
+            for path in paths:
+                path = Path(path)
                 f_ = {
                     "name": path.name,
                     "path": path.as_posix(),
@@ -152,6 +154,27 @@ class CloudFileModel(QStandardItemModel):
             return list_files
         else:
             return []
+
+    # def _listdir(self, dir):
+    #     if self.conn.check_connection() is True:
+    #         list_files = [
+    #             {
+    #                 "name": "..",
+    #                 "path": Path(self.current_dir).parent.as_posix(),
+    #                 "isdir": str(True),
+    #             }
+    #         ]
+    #         for path in Path(dir).glob("*"):
+    #             f_ = {
+    #                 "name": path.name,
+    #                 "path": path.as_posix(),
+    #                 "isdir": str(path.is_dir()),
+    #             }
+    #             list_files.append(f_)
+
+    #         return list_files
+    #     else:
+    #         return []
 
     def _append_data(self, data, dir=None):
         """

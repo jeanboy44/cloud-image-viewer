@@ -142,7 +142,7 @@ class MenuFileUploadDig(QDialog):
         self.uploader = FileUploader(
             local_root_dir=self.ui.textEdit.toPlainText(),
             cloud_root_dir=self.ui.textEdit_2.toPlainText(),
-            connector=self._mdl.current_connection,
+            connector=self._mctrl.conn,
         )
 
         self.init_widget()
@@ -197,7 +197,7 @@ class FileUploader(QThread):
         self._cloud_root_dir = cloud_root_dir
         self._status = "canceled"  # running, canceled, paused
         self._file_list = None
-        self.connector = connector
+        self.conn = connector
         self.threadactive = False
 
     @property
@@ -228,7 +228,7 @@ class FileUploader(QThread):
         """Upload files in local directory to blob"""
         self.threadactive = True
 
-        # Read List of Blobs
+        # Read List of Files
         if self._file_list is None:
             self._file_list = []
             for path in Path(self.local_root_dir).rglob("*"):
@@ -241,7 +241,7 @@ class FileUploader(QThread):
             file = Path(path).relative_to(self.local_root_dir)
             file_path = Path(self.cloud_root_dir).joinpath(file).as_posix()
             with open(path, "rb") as data:
-                self.connector.upload_blob(name=file_path, data=data)
+                self.conn.upload(src=data, dst=file_path)
             self.progress_.emit(i + 1)
 
             while self.status == "paused":
