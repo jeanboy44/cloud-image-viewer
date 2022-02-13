@@ -9,6 +9,7 @@ from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import BlobPrefix
 
 # from model import CloudFileModel
+TMPDIR = "Temp"
 
 
 class MainController(QObject):
@@ -110,8 +111,7 @@ class MainController(QObject):
         #     self._mdl.main_image = reader.read()
         #     # fp.close()
         if value.lower().endswith(tuple(extensions)):
-            TMPDIR = tempfile.TemporaryDirectory()
-            path = Path(TMPDIR.name).joinpath(value).as_posix()
+            path = Path(TMPDIR).joinpath(value).as_posix()
             print(path)
             os.makedirs(Path(path).parent, exist_ok=True)
 
