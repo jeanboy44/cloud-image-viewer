@@ -23,11 +23,13 @@ class Model(QObject):
         self._root_dir = ""
         self._cloud_root_dir = ""
         self._current_path = ""
+        self._cloud_current_path = ""
         self._main_image = None
 
     root_dir_selected = pyqtSignal(str)
     cloud_root_dir_selected = pyqtSignal(str)
     current_path_selected = pyqtSignal(str)
+    cloud_current_path_selected = pyqtSignal(str)
     main_image_loaded = pyqtSignal(QImage)
 
     @property
@@ -56,6 +58,15 @@ class Model(QObject):
     def current_path(self, value):
         self._current_path = value
         self.current_path_selected.emit(value)
+
+    @property
+    def cloud_current_path(self):
+        return self._current_path
+
+    @cloud_current_path.setter
+    def cloud_current_path(self, value):
+        self._cloud_current_path = value
+        self.cloud_current_path_selected.emit(value)
 
     @property
     def main_image(self):
@@ -175,6 +186,8 @@ class CloudFileModel(QStandardItemModel):
                     "name": path.name,
                     "path": path.as_posix(),
                     "isdir": str(isdirs[i]),
+                    "cached": str(False),
+                    "localdir": "",
                 }
                 list_files.append(f_)
 

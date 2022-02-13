@@ -2,6 +2,9 @@ from PyQt5.QtCore import QObject, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QFileSystemModel
 from PyQt5.QtGui import QImageReader
 
+import os
+import tempfile
+from pathlib import Path
 from azure.storage.blob import BlobServiceClient
 from azure.storage.blob import BlobPrefix
 
@@ -22,6 +25,9 @@ class MainController(QObject):
 
         # listen for model event signals
         self._mdl.current_path_selected.connect(self._on_current_path_selected)
+        self._mdl.cloud_current_path_selected.connect(
+            self._on_cloud_current_path_selected
+        )
         # self._mdl.cloud_file_model.doubleClicked.connect(self._mdl.d)
         # self._mdl.cloud_file_model.connection_name_changed.connect(
         #     self._connection_name_changed
@@ -54,7 +60,8 @@ class MainController(QObject):
         # print(item.data())
         try:
             item = self._mdl.cloud_file_model.itemFromIndex(indices[1])
-            self._mdl.current_path = item.text()
+
+            self._mdl.cloud_current_path = item.text()
         except:
             pass
 
@@ -84,6 +91,41 @@ class MainController(QObject):
             reader.setAutoTransform(True)
             self._mdl.main_image = reader.read()
             # self.canvas.load_pixmap(QPixmap.fromImage(image))
+
+    @pyqtSlot(str)
+    def _on_cloud_current_path_selected(self, value):
+        extensions = [
+            ".%s" % fmt.data().decode("ascii").lower()
+            for fmt in QImageReader.supportedImageFormats()
+        ]
+
+        # if value.lower().endswith(tuple(extensions)):
+        #     blob_client = self._mdl.cloud_file_model.conn.connector.get_blob_client(
+        #         value
+        #     )
+        #     with tempfile.TemporaryFile() as fp:
+        #         fp.write(blob_client.download_blob().readall())
+        #     reader = QImageReader(fp.name)
+        #     reader.setAutoTransform(True)
+        #     self._mdl.main_image = reader.read()
+        #     # fp.close()
+        if value.lower().endswith(tuple(extensions)):
+            TMPDIR = tempfile.TemporaryDirectory()
+            path = Path(TMPDIR.name).joinpath(value).as_posix()
+            print(path)
+            os.makedirs(Path(path).parent, exist_ok=True)
+
+            blob_client = self._mdl.cloud_file_model.conn.connector.get_blob_client(
+                value
+            )
+            print(f"path:{path}")
+            with open(path, mode="wb") as f:
+                f.write(blob_client.download_blob().readall())
+            reader = QImageReader(path)
+            reader.setAutoTransform(True)
+            self._mdl.main_image = reader.read()
+
+            # TMPDIR.cleanup()
 
     # @pyqtSlot(str)
     # def _connection_name_changed(self, value):
