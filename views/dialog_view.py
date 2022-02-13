@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QDialog, QFileDialog
 
 from views.settings_cloud_account_dialog_ui import Ui_MenuSettingsAccountDialog
 from views.file_upload_dialog_ui import Ui_MenuFileUploadDig
+from views.file_opencloud_dialog_ui import Ui_MenuFileOpenCloudDig
 
 DEFAULT_OPEN_DIR_PATH = ""
 
@@ -268,4 +269,91 @@ class FileUploader(QThread):
         self.wait(2000)
 
 
-# class MenuOpenRemoteDialog(QDialog):
+class MenuFileOpenCloudDig(QDialog):
+    """Employee dialog."""
+
+    def __init__(self, model, main_controller, parent=None):
+        super(MenuFileOpenCloudDig, self).__init__(parent)
+
+        self._cloud_root_dir = ""
+
+        # initialize ui
+        self._mdl = model
+        self._mctrl = main_controller
+        self.cloud_file_model = self._mdl.dialog_cloud_file_model
+        self.cloud_file_model.conn = self._mctrl.conn
+        self.ui = Ui_MenuFileOpenCloudDig()
+        self.ui.setupUi(self)
+
+        # connect widgets to controller
+        self.ui.treeView.doubleClicked.connect(self.double_click_cloud_current_path)
+        self.cloud_root_dir_selected.connect(self.on_cloud_root_dir_selected)
+
+        self.init_widget()
+
+    cloud_root_dir_selected = pyqtSignal(str)
+
+    @property
+    def cloud_root_dir(self):
+        return self._cloud_root_dir
+
+    @cloud_root_dir.setter
+    def cloud_root_dir(self, value):
+        self._cloud_root_dir = value
+        self.cloud_root_dir_selected.emit(value)
+
+    def init_widget(self):
+        # listen for model event signals
+        self.ui.pushButton.clicked.connect(self.click_pushButton)
+        self.ui.pushButton_2.clicked.connect(self.click_pushButton_2)
+        self.ui.pushButton_3.clicked.connect(self.click_pushButton_3)
+
+    @pyqtSlot()
+    def click_pushButton(self):
+        """"""
+        self._mdl.cloud_root_dir = self.ui.textEdit.toPlainText()
+        self.close()
+
+    @pyqtSlot()
+    def click_pushButton_2(self):
+        """"""
+        self.close()
+
+    @pyqtSlot()
+    def click_pushButton_3(self):
+        """"""
+        self.cloud_root_dir = self.ui.textEdit.toPlainText()
+
+    @pyqtSlot("QModelIndex")
+    def double_click_cloud_current_path(self, index):
+        """select cloud current path
+        index 0: name
+        index 1: path
+        index 2: id directory
+        """
+        # print(f"index: {index}")
+        # for i in range(self.cloud_file_model.rowCount()):
+        #     print(i, end="/")
+        #     print(self.cloud_file_model.item(i, 0).text())
+        # print(f"index row: {index.row()}")
+
+        name = self.cloud_file_model.item(index.row(), 0).text()
+        path = self.cloud_file_model.item(index.row(), 1).text()
+        isdir = self.cloud_file_model.item(index.row(), 2).text()
+        self.ui.textEdit.setText(path)
+        if isdir == "True":
+            self.cloud_root_dir = path
+        else:
+            pass
+
+    @pyqtSlot(str)
+    def on_cloud_root_dir_selected(self, value):
+        print(value)
+        self.cloud_file_model.clear()
+        self.cloud_file_model.list_dir(value, only_dir=True)
+        self.ui.treeView.setModel(self.cloud_file_model)
+        self.ui.treeView.show()
+        # selmodel = dialog.ui.treeView.selectionModel()
+        # selmodel.selectionChanged.connect(
+        #     self._mctrl.select_cloud_current_path
+        # )

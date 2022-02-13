@@ -250,7 +250,7 @@ class Connector:
 
     def get_list(self, path):
         """"""
-        print(f"get_list-path: {path}")
+        # print(f"get_list-path: {path}")
         # for item in self.connector.walk_blobs(name_starts_with=path):
         #     if isinstance(item, BlobPrefix):
         #         for item in self.connector.walk_blobs(name_starts_with=item.name):

@@ -3,7 +3,11 @@ from PyQt5.QtWidgets import QMainWindow, QScrollArea, QFileDialog, QDialog
 from PyQt5.QtGui import QPixmap
 
 from views.main_view_ui import Ui_MainWindow
-from views.dialog_view import MenuSettingsAccountDig, MenuFileUploadDig
+from views.dialog_view import (
+    MenuSettingsAccountDig,
+    MenuFileUploadDig,
+    MenuFileOpenCloudDig,
+)
 from views.canvas_view import Canvas
 
 DEFAULT_OPEN_DIR_PATH = ""
@@ -64,7 +68,7 @@ class MainView(QMainWindow):
 
     @pyqtSlot(str)
     def on_cloud_root_dir_selected(self, value):
-        print(value)
+        # print(value)
         self._mdl.cloud_file_model.clear()
         self._mdl.cloud_file_model.list_dir(value)
         self._ui.side_bar.setModel(self._mdl.cloud_file_model)
@@ -89,13 +93,10 @@ class MainView(QMainWindow):
 
     @pyqtSlot()
     def click_file_open_cloud(self):
-        self._mdl.cloud_root_dir = "kfoodsample/구이"
-        # self._mdl.cloud_root_dir = QFileDialog.getExistingDirectory(
-        #     None,
-        #     "Open Directory",
-        #     DEFAULT_OPEN_DIR_PATH,
-        #     # QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks,
-        # )
+        # self._mdl.cloud_root_dir = ""
+        dialog = MenuFileOpenCloudDig(self._mdl, self._mctrl)
+        dialog.cloud_root_dir = ""
+        dialog.exec()
 
     @pyqtSlot()
     def click_settings_account(self):

@@ -17,6 +17,7 @@ class Model(QObject):
         self.file_system_model = QFileSystemModel()
         self.file_system_model.setReadOnly(False)
         self.cloud_file_model = CloudFileModel()
+        self.dialog_cloud_file_model = CloudFileModel()
         # self.cloud_file_model.setReadOnly(False)
 
         self._root_dir = ""
@@ -122,18 +123,18 @@ class CloudFileModel(QStandardItemModel):
     #     self._append_data(list_files)
 
     @pyqtSlot()
-    def list_dir(self, dir):
+    def list_dir(self, dir, only_dir=False):
         # dir = obj.item.text()
         self.current_dir = dir
-        list_files = self._listdir(dir)
+        list_files = self._listdir(dir, only_dir)
         self._append_data(list_files)
 
     @pyqtSlot()
     def clear(self):
         self.removeRows(0, self.rowCount())
 
-    def _listdir(self, dir):
-        print(f"_listdir: dir: {dir}")
+    def _listdir(self, dir, only_dir=False):
+        # print(f"_listdir: dir: {dir}")
         # if self.conn.check_connection() is True:
         #     yield {
         #             "name": "..",
@@ -166,6 +167,9 @@ class CloudFileModel(QStandardItemModel):
             ]
             paths, isdirs = self.conn.get_list(dir)
             for i, path in enumerate(paths):
+                if only_dir is True:
+                    if isdirs[i] is not True:
+                        continue
                 path = Path(path)
                 f_ = {
                     "name": path.name,
