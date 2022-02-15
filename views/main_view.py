@@ -59,6 +59,7 @@ class MainView(QMainWindow):
     @pyqtSlot(str)
     def on_root_dir_selected(self, value):
         if value != "":
+            self._mctrl.sidebar_model = "file_system_model"
             root = self._mdl.file_system_model.setRootPath(value)
             self._ui.side_bar.setModel(self._mdl.file_system_model)
             side_bar_selmodel = self._ui.side_bar.selectionModel()
@@ -69,6 +70,7 @@ class MainView(QMainWindow):
     @pyqtSlot(str)
     def on_cloud_root_dir_selected(self, value):
         # print(value)
+        self._mctrl.sidebar_model = "cloud_file_model"
         self._mdl.cloud_file_model.clear()
         self._mdl.cloud_file_model.list_dir(value)
         self._ui.side_bar.setModel(self._mdl.cloud_file_model)
