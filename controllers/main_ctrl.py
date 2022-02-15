@@ -160,7 +160,10 @@ class MainController(QObject):
 
     def _on_open_app(self):
         first_account = next(iter(self._mdl.settings.accounts))
-        self.conn.connect(self._mdl.settings.accounts[first_account])
+        try:
+            self.conn.connect(self._mdl.settings.accounts[first_account])
+        except:
+            pass
 
 
 # class ConfigController(QObject):
