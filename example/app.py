@@ -10,6 +10,19 @@ class MainView(QMainWindow):
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
 
+        self._ui.label_2.setText("")
+        self._ui.pushButton.clicked.connect(self.on_click_enter)
+        self._ui.pushButton_2.clicked.connect(self.on_click_delete)
+
+    def on_click_enter(self):
+        current_contents = self._ui.label_2.text()
+        new_contents = self._ui.textEdit.toPlainText()
+        self._ui.label_2.setText(f"{current_contents}\n{new_contents}")
+        self._ui.textEdit.setText("")
+
+    def on_click_delete(self):
+        self._ui.label_2.setText("")
+
 
 class App(QApplication):
     def __init__(self, parent=None):
