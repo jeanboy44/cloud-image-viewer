@@ -1,3 +1,0 @@
-pyyaml
-azure-storage-blob
-PyQt5
