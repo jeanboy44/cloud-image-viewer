@@ -136,4 +136,6 @@ dmypy.json
 
 config.yml
 
+.streamlit/secrets.toml
+
 Temp/
