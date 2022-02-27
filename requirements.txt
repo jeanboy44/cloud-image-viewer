@@ -3,4 +3,4 @@ pandas == 1.4.1
 numpy == 1.22.2
 azure-storage-blob == 12.9.0
 pyyaml == 6.0
-streamlit-aggride == 0.2.3.post2
+streamlit-aggrid == 0.2.3.post2

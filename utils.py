@@ -84,8 +84,11 @@ class Connector:
         elif self.connection_type == "aws":
             return False
 
-    def download(self):
+    def download(self, src, dest):
         """"""
+        blob_client = self.connector.get_blob_client(src)
+        with open(dest, "wb") as download_file:
+            download_file.write(blob_client.download_blob().readall())
 
     def get_list(self, path):
         """"""
@@ -120,3 +123,19 @@ class Connector:
             return path_list, isdir_list
         elif self.connection_type == "aws":
             return False
+
+
+class FileSystem:
+    def __init__(self):
+        self.name =None
+
+    def get_list(self, dir):
+        """"""
+        path_list = []
+        isdir_list = []
+        for path in Path(dir).glob("*"):
+            print(path)
+            path_list.append(path)
+            isdir_list.append(os.path.isdir(path))
+
+        return path_list, isdir_list
