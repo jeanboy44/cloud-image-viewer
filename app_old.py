@@ -61,14 +61,9 @@ def init_connection():
 
 
 @st.cache
-def read_image(conn, path, type):
-    if type == "cloud":
-        blob_client = conn.connector.get_blob_client(path)
-        byte = blob_client.download_blob().content_as_bytes()
-
-    if type == "local":
-        with open(path, "rb") as f:
-            byte = f.read()
+def read_image(conn, path):
+    with open(path, "rb") as f:
+        byte = f.read()
 
     return byte
 
