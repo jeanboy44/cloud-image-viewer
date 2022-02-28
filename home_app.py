@@ -32,13 +32,30 @@ def get_filter_info(data):
     return df
 
 
+def handle_change():
+    for key in st.session_state.keys():
+        if key[:5] == "level":
+            st.session_state[key[:-12]] = st.session_state[f"{key}"]
+
+
 def load_filter(data):
     filter_list = {}
     for col in data.columns:
-        filter_list[col] = data[col].dropna().unique().tolist()
-
         if col not in st.session_state:
-            st.session_state[col] = data[col].dropna().unique().tolist()
+            if f"{col}_multiselect" in st.session_state:
+                st.session_state[col] = st.session_state[f"{col}_multiselect"]
+            else:
+                st.session_state[col] = data[col].dropna().unique().tolist()
+                st.session_state[f"{col}_multiselect"] = (
+                    data[col].dropna().unique().tolist()
+                )
+        else:
+            if f"{col}_multiselect" not in st.session_state:
+                st.session_state[f"{col}_multiselect"] = st.session_state[col]
+
+        filter_list[col] = data[col].dropna().unique().tolist()
+        # else:
+        #     filter_list[col] = st.session_state[col]
 
     return filter_list
 
@@ -84,7 +101,12 @@ def main():
     with col2:
         st.markdown("### Filter form")
         for name, values in filters_.items():
-            st.multiselect(label=name, options=values, default=values[0], key=name)
+            st.multiselect(
+                label=name,
+                options=values,
+                on_change=handle_change,
+                key=f"{name}_multiselect",
+            )
 
     with col3:
         st.markdown("### &nbsp;")
