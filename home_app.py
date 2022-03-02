@@ -9,10 +9,10 @@ from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 
 @st.cache
-def load_data():
+def load_data(root_dir):
     # load data
     paths = []
-    for path in Path("/Users/jeanboy/Dropbox/Temporary").rglob("*.jpg"):
+    for path in Path(root_dir).rglob("*.jpg"):
         paths.append(str(path))
 
     # parse data
@@ -36,6 +36,13 @@ def handle_change():
     for key in st.session_state.keys():
         if key[:5] == "level":
             st.session_state[key[:-12]] = st.session_state[f"{key}"]
+
+
+def root_dir_entered():
+    st.session_state.root_dir = st.session_state.root_dir_textinput
+    for key in st.session_state.keys():
+        if key[:5] == "level":
+            del st.session_state[f"{key}"]
 
 
 def load_filter(data):
@@ -80,7 +87,12 @@ def filter_data(data, filter_info):
 
 def main():
     """"""
-    loaded_data = load_data()
+    st.sidebar.write("----")
+    st.sidebar.text_input(
+        label="root_dir", key="root_dir_textinput", on_change=root_dir_entered
+    )
+
+    loaded_data = load_data(st.session_state.root_dir_textinput)
     filter_info = get_filter_info(loaded_data)
     filters_ = load_filter(filter_info)
 
@@ -91,6 +103,7 @@ def main():
     col1, col2, col3 = st.columns([0.2, 0.4, 0.4])
     with col1:
         st.markdown("### File list")
+        # st.sidebar.
         ag_data = AgGrid(
             pd.DataFrame(st.session_state.filtered_data["path"]),
             enable_enterprise_modules=True,
@@ -108,11 +121,11 @@ def main():
                 key=f"{name}_multiselect",
             )
 
-    with col3:
-        st.markdown("### &nbsp;")
-        st.text_input("Level 3", key="t3")
-        st.text_input("Level 4", key="t4")
-        st.number_input("Max number2")
+    # with col3:
+    #     st.markdown("### &nbsp;")
+    #     st.text_input("Level 3", key="t3")
+    #     st.text_input("Level 4", key="t4")
+    #     st.number_input("Max number2")
 
 
 if __name__ == "__main__":

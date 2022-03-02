@@ -19,6 +19,12 @@ def read_image(path):
 
 
 def main():
+    st.sidebar.write("-----")
+    show_label = st.sidebar.checkbox(label="show_annotation")
+    if show_label:
+        form = st.sidebar.form("aonnotation_dir")
+        form.text_input(label="annotation_dir", key="annotation_dir")
+        form.form_submit_button("Apply")
     col1, col2 = st.columns([0.2, 0.8])
     with col1:
         st.markdown("### File list")

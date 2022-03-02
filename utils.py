@@ -1,20 +1,17 @@
 import streamlit as st
 from azure.storage.blob import BlobServiceClient
 
-# Initialize session states
-if "account" not in st.session_state:
-    st.session_state.account = "azure"
 
-
-@st.cache(
-    allow_output_mutation=True,
-    hash_funcs={"_thread.RLock": lambda _: None, "builtins.weakref": lambda _: None},
-)
-def connect():
-    account = st.session_state.account
-    if account != "local":
-        conn_str = st.secrets[account]["conn_str"]
-        container = st.secrets[account]["container"]
+# @st.cache(
+#     allow_output_mutation=True,
+#     hash_funcs={"_thread.RLock": lambda _: None, "builtins.weakref": lambda _: None},
+# )
+def connect(repo):
+    if repo == "Local":
+        container_client = None
+    else:
+        conn_str = st.secrets[repo]["conn_str"]
+        container = st.secrets[repo]["container"]
         blob_service_client = BlobServiceClient.from_connection_string(conn_str)
         container_client = blob_service_client.get_container_client(container)
 
