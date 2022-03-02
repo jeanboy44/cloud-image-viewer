@@ -1,7 +1,12 @@
 import streamlit as st
+from lxml import etree
+from xml.etree import ElementTree
 from azure.storage.blob import BlobServiceClient
+import imgaug as ia
+import imgaug.augmenters as iaa
 
-
+XML_EXT = ".xml"
+ENCODE_METHOD = "utf-8"
 # @st.cache(
 #     allow_output_mutation=True,
 #     hash_funcs={"_thread.RLock": lambda _: None, "builtins.weakref": lambda _: None},
@@ -16,6 +21,47 @@ def connect(repo):
         container_client = blob_service_client.get_container_client(container)
 
     return container_client
+
+
+class PascalVocReader:
+    def __init__(self, file_path):
+        self.file_path = file_path
+        self.boxes = []
+        self.verified = False
+        try:
+            self.parse_xml()
+        except:
+            pass
+
+    def get_boxes(self):
+        return self.boxes
+
+    def add_box(self, label, bnd_box):
+        x_min = int(float(bnd_box.find("xmin").text))
+        y_min = int(float(bnd_box.find("ymin").text))
+        x_max = int(float(bnd_box.find("xmax").text))
+        y_max = int(float(bnd_box.find("ymax").text))
+
+        bbox = ia.BoundingBox(x1=x_min, y1=y_min, x2=x_max, y2=y_max, label=label)
+        self.boxes.append(bbox)
+
+    def parse_xml(self):
+        assert self.file_path.endswith(XML_EXT), "Unsupported file format"
+        parser = etree.XMLParser(encoding=ENCODE_METHOD)
+        xml_tree = ElementTree.parse(self.file_path, parser=parser).getroot()
+        filename = xml_tree.find("filename").text
+        try:
+            verified = xml_tree.attrib["verified"]
+            if verified == "yes":
+                self.verified = True
+        except KeyError:
+            self.verified = False
+
+        for object_iter in xml_tree.findall("object"):
+            bnd_box = object_iter.find("bndbox")
+            label = object_iter.find("name").text
+            self.add_box(label, bnd_box)
+        return True
 
 
 # import os
