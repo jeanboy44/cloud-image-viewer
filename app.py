@@ -12,7 +12,7 @@ from home_app import main as home
 from view_image_app import main as view_image
 from settings_app import main as settings
 
-ROOT_DIR = "/Users/jeanboy/Dropbox/Temporary"
+ROOT_DIR = "sample_images/"
 
 # Initialize session states
 if "connection_type" not in st.session_state:
@@ -20,6 +20,7 @@ if "connection_type" not in st.session_state:
     st.session_state.connector = None
     st.session_state.repo = "Local"
     st.session_state.repo_condition = "Local✅"
+    st.session_state.annotation_dir = ""
 
 # Initialize session states
 if "root_dir_textinput" not in st.session_state:
@@ -29,6 +30,9 @@ if "root_dir_textinput" not in st.session_state:
         st.session_state.root_dir = ROOT_DIR
         st.session_state.root_dir_textinput = ROOT_DIR
 
+# Initialize sessionstates
+# if "annotation_dir" not in st.session_state:
+#     st.session_state.annotation_dir = ""
 
 # Config Page
 PAGE_CONFIG = {

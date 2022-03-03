@@ -1,0 +1,26 @@
+<annotation>
+	<folder>갈비구이</folder>
+	<filename>Img_000_0003.jpg</filename>
+	<path>E:\kfood\구이\구이\갈비구이\Img_000_0003.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>600</width>
+		<height>336</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>갈비구이</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>69</xmin>
+			<ymin>102</ymin>
+			<xmax>527</xmax>
+			<ymax>303</ymax>
+		</bndbox>
+	</object>
+</annotation>

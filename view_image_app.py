@@ -13,10 +13,6 @@ from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 from utils import PascalVocReader
 
-# Initialize session states
-if "filtered_data" not in st.session_state:
-    st.session_state.filtered_data = None
-
 # Functions
 @st.cache
 def read_image(path, annotation=False):
@@ -74,18 +70,23 @@ def main():
             update_mode=GridUpdateMode.SELECTION_CHANGED,
         )
         try:
-            data_selected = ag_data["selected_rows"][0]
-            path = data_selected["path"]
+            if "current_path" not in st.session_state:
+                st.session_state.current_path = data["path"][0]
+            else:
+                data_selected = ag_data["selected_rows"][0]
+                path = data_selected["path"]
+                st.session_state.current_path = path
         except:
-            path = ""
+            path = None
     with col2:
         st.markdown("### Image")
         try:
-            img = read_image(path, annotation=show_label)
+            img = read_image(st.session_state.current_path, annotation=show_label)
             st.image(img)
-        except:
+        except Exception as e:
             st.empty()
-        st.write(path)
+            st.error(e)
+        st.write(st.session_state.current_path)
 
 
 if __name__ == "__main__":
