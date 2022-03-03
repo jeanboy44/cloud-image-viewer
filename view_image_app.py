@@ -58,6 +58,18 @@ def read_image(path, annotation=False):
     return image
 
 
+def annotation_dir_changed():
+    st.session_state.annotation_dir_ = st.session_state.annotation_dir
+
+
+def show_annot_clicked():
+    st.session_state.show_annot_ = st.session_state.show_annot
+
+
+def show_annot_only_clicked():
+    st.session_state.show_annot_only_ = st.session_state.show_annot_only
+
+
 def load_labels():
     """"""
     annots = [f.stem for f in Path(st.session_state.annotation_dir).glob("*.xml")]
@@ -69,12 +81,18 @@ def load_labels():
 def main():
     st.sidebar.write("-----")
     co1, col2 = st.sidebar.columns(2)
-    show_annot = co1.checkbox(label="show_annotation")
+    show_annot = co1.checkbox(
+        label="show_annotation", key="show_annot", on_change=show_annot_clicked
+    )
     data = st.session_state.filtered_data[["file", "path"]]
     if show_annot:
-        show_only_annot = col2.checkbox(label="only")
+        show_only_annot = col2.checkbox(
+            label="only", key="show_annot_only", on_change=show_annot_only_clicked
+        )
         st.sidebar.text_input(
-            label="annotation_dir", key="annotation_dir", on_change=load_labels
+            label="annotation_dir",
+            key="annotation_dir",
+            on_change=annotation_dir_changed,
         )
         data_label = load_labels()
         if data_label.shape[0] == 0:
@@ -102,13 +120,12 @@ def main():
             allow_unsafe_jscode=True,
             update_mode=GridUpdateMode.SELECTION_CHANGED,
         )
+        if "current_path" not in st.session_state:
+            st.session_state.current_path = data["path"][0]
         try:
-            if "current_path" not in st.session_state:
-                st.session_state.current_path = data["path"][0]
-            else:
-                data_selected = ag_data["selected_rows"][0]
-                path = data_selected["path"]
-                st.session_state.current_path = path
+            data_selected = ag_data["selected_rows"][0]
+            path = data_selected["path"]
+            st.session_state.current_path = path
         except:
             path = None
     with col2:

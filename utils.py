@@ -11,6 +11,34 @@ ENCODE_METHOD = "utf-8"
 #     allow_output_mutation=True,
 #     hash_funcs={"_thread.RLock": lambda _: None, "builtins.weakref": lambda _: None},
 # )
+
+
+def initialize_session_state(name, value, slider=False):
+    """initailize streamlit session state
+
+    if slider is True,
+    this does some tricks to assures that session state is not refreshed when restarted
+    this should be used with Callback function for streamlit slider function.
+    example)
+        def handle_change():
+            st.session_state[f"{name}"_] = st.session_state[name]
+    """
+
+    if slider is False:
+        if name not in st.session_state:
+            st.session_state[name] = value
+
+    else:
+        if name not in st.session_state:
+            # if f"{name}_" in st.session_state:
+            #     st.session_state[name] = st.session_state[f"{name}_"]
+            # else:
+            st.session_state[f"{name}_"] = value
+            st.session_state[name] = value
+        else:
+            st.session_state[name] = st.session_state[f"{name}_"]
+
+
 def connect(repo):
     if repo == "Local":
         container_client = None

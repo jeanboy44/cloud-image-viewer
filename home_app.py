@@ -40,7 +40,7 @@ def handle_change():
 
 
 def root_dir_entered():
-    st.session_state.root_dir = st.session_state.root_dir_textinput
+    st.session_state.root_dir_ = st.session_state.root_dir
     for key in st.session_state.keys():
         if key[:5] == "level":
             del st.session_state[f"{key}"]
@@ -89,18 +89,15 @@ def filter_data(data, filter_info):
 def main():
     """"""
     st.sidebar.write("----")
-    st.sidebar.text_input(
-        label="root_dir", key="root_dir_textinput", on_change=root_dir_entered
-    )
+    st.sidebar.text_input(label="root_dir", key="root_dir", on_change=root_dir_entered)
 
-    loaded_data = load_data(st.session_state.root_dir_textinput)
+    loaded_data = load_data(st.session_state.root_dir)
     filter_info = get_filter_info(loaded_data)
     filters_ = load_filter(filter_info)
 
     st.session_state.filtered_data = filter_data(
         data=loaded_data, filter_info=filter_info
     )
-
     col1, col2, col3 = st.columns([0.2, 0.4, 0.4])
     with col1:
         st.markdown("### File list")
