@@ -18,6 +18,7 @@ def load_data(root_dir):
     # parse data
     df = pd.DataFrame({"path": paths})
     df["dir"] = [str(Path(path).parent) for path in df.path]
+    df["file"] = [str(Path(path).stem) for path in df.path]
     return df
 
 

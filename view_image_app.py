@@ -8,10 +8,29 @@ from pathlib import Path
 import imgaug as ia
 from PIL import Image
 from st_aggrid import AgGrid
-from st_aggrid.shared import GridUpdateMode
+from st_aggrid.shared import JsCode, GridUpdateMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 from utils import PascalVocReader
+
+
+# cellsytle_jscode = JsCode(
+#     """
+# function(params) {
+#     if (params.value.includes(False)) {
+#         return {
+#             'color': 'white',
+#             'backgroundColor': 'darkred'
+#         }
+#     } else {
+#         return {
+#             'color': 'black',
+#             'backgroundColor': 'white'
+#         }
+#     }
+# };
+# """
+# )
 
 # Functions
 @st.cache
@@ -41,21 +60,35 @@ def read_image(path, annotation=False):
 
 def load_labels():
     """"""
-    for file_path in Path(st.session_state.annotation_dir).glob(".xml"):
-        reader = PascalVocReader(file_path)
-        reader.parse_xml()
+    annots = [f.stem for f in Path(st.session_state.annotation_dir).glob("*.xml")]
+    # reader = PascalVocReader(file_path)
+    # reader.parse_xml()
+    return pd.DataFrame({"file": annots, "annotation": True})
 
 
 def main():
     st.sidebar.write("-----")
-    show_label = st.sidebar.checkbox(label="show_annotation")
-    data = st.session_state.filtered_data
-    if show_label:
-        # form = st.sidebar.form("aonnotation_dir")
+    co1, col2 = st.sidebar.columns(2)
+    show_annot = co1.checkbox(label="show_annotation")
+    data = st.session_state.filtered_data[["file", "path"]]
+    if show_annot:
+        show_only_annot = col2.checkbox(label="only")
         st.sidebar.text_input(
             label="annotation_dir", key="annotation_dir", on_change=load_labels
         )
-        # form.form_submit_button("Apply")
+        data_label = load_labels()
+        if data_label.shape[0] == 0:
+            st.sidebar.warning(f"{data_label.shape[0]} annotations loaded")
+        else:
+            st.sidebar.success(f"{data_label.shape[0]} annotations loaded")
+
+        if show_only_annot:
+            data = pd.merge(data, data_label, how="inner")
+            data = data.fillna(False)
+        else:
+            data = pd.merge(data, data_label, how="left")
+            data = data.fillna(False)
+
     col1, col2 = st.columns([0.2, 0.8])
     with col1:
         st.markdown("### File list")
@@ -81,7 +114,7 @@ def main():
     with col2:
         st.markdown("### Image")
         try:
-            img = read_image(st.session_state.current_path, annotation=show_label)
+            img = read_image(st.session_state.current_path, annotation=show_annot)
             st.image(img)
         except Exception as e:
             st.empty()
