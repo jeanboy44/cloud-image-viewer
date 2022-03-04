@@ -6,6 +6,7 @@ import numpy as np
 
 from pathlib import Path
 import imgaug as ia
+import imgaug.augmenters as iaa
 from PIL import Image
 from st_aggrid import AgGrid
 from st_aggrid.shared import JsCode, GridUpdateMode
@@ -34,28 +35,36 @@ from utils import PascalVocReader
 
 # Functions
 @st.cache
-def read_image(path, annotation=False):
-
+def read_image(path, resize_ratio=0.2, annotation=False, annotation_dir=""):
+    error_msg = None
+    seq = iaa.Sequential([iaa.Resize(resize_ratio)])
     # with open(path, "rb") as f:
     #     byte = Image
     image = Image.open(path)
 
     if annotation is True:
         try:
-            file_path = str(
-                Path(st.session_state.annotation_dir).joinpath(f"{Path(path).stem}.xml")
-            )
+
+            file_path = str(Path(annotation_dir).joinpath(f"{Path(path).stem}.xml"))
             reader = PascalVocReader(file_path)
             reader.parse_xml()
             # encoded_img = np.fromstring(byte, dtype=np.uint8)
             # image = cv2.imdecode(encoded_img, cv2.IMREAD_COLOR)
             image = np.asarray(image)
+            if len(image.shape) == 2:
+                image = np.stack((np.asarray(image),) * 3, axis=-1)
             bbs = ia.BoundingBoxesOnImage(reader.boxes, shape=image.shape)
-            image = bbs.draw_on_image(image)
-        except:
-            pass
+            images_aug, bbs_aug = seq(images=[image], bounding_boxes=bbs)
+            image = bbs_aug.draw_on_image(images_aug[0])
+        except Exception as e:
+            error_msg = e
+            images_aug = seq(images=[np.asarray(image)])
+            image = images_aug[0]
+    else:
+        images_aug = seq(images=[np.asarray(image)])
+        image = images_aug[0]
 
-    return image
+    return image, error_msg
 
 
 def annotation_dir_changed():
@@ -80,6 +89,18 @@ def load_labels():
 
 def main():
     st.sidebar.write("-----")
+    st.sidebar.write("Image Configurations")
+    form = st.sidebar.form(key="image_configuration")
+    form.number_input(
+        label="Scale",
+        min_value=0.1,
+        max_value=1.0,
+        value=0.5,
+        step=0.1,
+        key="image_scale",
+    )
+    form.form_submit_button("Apply")
+
     co1, col2 = st.sidebar.columns(2)
     show_annot = co1.checkbox(
         label="show_annotation", key="show_annot", on_change=show_annot_clicked
@@ -121,7 +142,11 @@ def main():
             update_mode=GridUpdateMode.SELECTION_CHANGED,
         )
         if "current_path" not in st.session_state:
-            st.session_state.current_path = data["path"][0]
+            try:
+                st.session_state.current_path = data["path"][0]
+            except:
+                st.session_state.current_path = ""
+
         try:
             data_selected = ag_data["selected_rows"][0]
             path = data_selected["path"]
@@ -131,8 +156,15 @@ def main():
     with col2:
         st.markdown("### Image")
         try:
-            img = read_image(st.session_state.current_path, annotation=show_annot)
+            img, error_msg = read_image(
+                st.session_state.current_path,
+                resize_ratio=st.session_state.image_scale,
+                annotation=st.session_state.show_annot,
+                annotation_dir=st.session_state.annotation_dir,
+            )
             st.image(img)
+            if error_msg is not None:
+                st.error(error_msg)
         except Exception as e:
             st.empty()
             st.error(e)

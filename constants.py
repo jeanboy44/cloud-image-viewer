@@ -1,0 +1,1 @@
+EXTS = [".jpg", ".jpeg", ".png"]

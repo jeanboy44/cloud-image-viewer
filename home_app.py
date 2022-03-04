@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 from pathlib import Path
 
+from constants import EXTS
 from st_aggrid import AgGrid
 from st_aggrid.shared import GridUpdateMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
@@ -12,12 +13,13 @@ from st_aggrid.grid_options_builder import GridOptionsBuilder
 def load_data(root_dir):
     # load data
     paths = []
-    for path in Path(root_dir).rglob("*.jpg"):
-        paths.append(str(path))
+    for path in Path(root_dir).rglob("*"):
+        if path.suffix in EXTS:
+            paths.append(str(path.as_posix()))
 
     # parse data
     df = pd.DataFrame({"path": paths})
-    df["dir"] = [str(Path(path).parent) for path in df.path]
+    df["dir"] = [str(Path(path).parent.as_posix()) for path in df.path]
     df["file"] = [str(Path(path).stem) for path in df.path]
     return df
 
