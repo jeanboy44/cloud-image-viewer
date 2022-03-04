@@ -95,7 +95,7 @@ def main():
         label="Scale",
         min_value=0.1,
         max_value=1.0,
-        value=0.5,
+        value=0.3,
         step=0.1,
         key="image_scale",
     )

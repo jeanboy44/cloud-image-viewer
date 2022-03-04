@@ -15,7 +15,7 @@ def main():
     col1, col2, col3 = st.columns(3)
     col1.selectbox(
         "Repository",
-        options=("Local", "AzureTest", "AWSTest"),
+        options=["Local"] + [key for key in st.secrets.keys()],
         key="repo",
         on_change=repo_on_change,
     )
