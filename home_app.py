@@ -1,9 +1,9 @@
 import streamlit as st
-import pandas as pd
 
 from st_aggrid import AgGrid
 from st_aggrid.shared import GridUpdateMode
 
+import pandas as pd
 from utils import load_data, SessionStateHandler as ss
 
 # Load data and images
@@ -81,12 +81,6 @@ def main():
                 on_change=ss.level_selected,
                 key=name,
             )
-
-    # with col3:
-    #     st.markdown("### &nbsp;")
-    #     st.text_input("Level 3", key="t3")
-    #     st.text_input("Level 4", key="t4")
-    #     st.number_input("Max number2")
 
 
 if __name__ == "__main__":

@@ -15,10 +15,6 @@ def main():
         on_change=ss.repo_on_change,
     )
 
-    # if st.session_state.connection_name == "Local":
-
-    #     st.session_state.repo_condition = "Local ✅"
-    # else:
     try:
         connector_ = st.session_state.connector
         connector_.connect(name=st.session_state.repo)

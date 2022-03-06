@@ -55,7 +55,9 @@ def main():
             key="annotation_dir",
             on_change=ss.annotation_dir_changed,
         )
-        data_label = load_labels()
+        data_label = load_labels(
+            st.session_state.annotation_dir, st.session_state.connector
+        )
         if data_label.shape[0] == 0:
             st.sidebar.warning(f"{data_label.shape[0]} annotations loaded")
         else:
@@ -98,6 +100,7 @@ def main():
         try:
             img, error_msg = load_image(
                 st.session_state.current_path,
+                connector=st.session_state.connector,
                 resize_ratio=st.session_state.image_scale,
                 annotation=st.session_state.show_annot,
                 annotation_dir=st.session_state.annotation_dir,
