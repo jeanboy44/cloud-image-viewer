@@ -22,6 +22,95 @@ ENCODE_METHOD = "utf-8"
 #     hash_funcs={"_thread.RLock": lambda _: None, "builtins.weakref": lambda _: None},
 # )
 
+
+class SessionStateHandler:
+    """Session state handler
+    Consider session states as global variables
+    """
+
+    def __init__(self):
+        """"""
+
+    @classmethod
+    def initialize(cls):
+        cls.initialize_session_state("connector", Connector())
+        cls.initialize_session_state("loaded_data", None)
+        cls.initialize_session_state("filtered_data", None)
+
+        cls.initialize_session_state("repo", "Local", slider=True)
+        cls.initialize_session_state("root_dir", DEFAULT_DIR, slider=True)
+        cls.initialize_session_state("show_annot", False, slider=True)
+        cls.initialize_session_state("show_annot_only", False, slider=True)
+        cls.initialize_session_state("annotation_dir", "", slider=True)
+        cls.initialize_session_state("annotation_dir", "", slider=True)
+
+    @staticmethod
+    def initialize_session_state(name, value, slider=False):
+        """initailize streamlit session state
+
+        if slider is True,
+        this does some tricks to assures that session state is not refreshed when restarted
+        this should be used with Callback function for streamlit slider function.
+        example)
+            def handle_change():
+                st.session_state[f"{name}"_] = st.session_state[name]
+        """
+
+        if slider is False:
+            if name not in st.session_state:
+                st.session_state[name] = value
+
+        else:
+            # if name not in st.session_state:
+            #     st.session_state[f"{name}_"] = value
+            #     st.session_state[name] = value
+            # else:
+            #     st.session_state[name] = st.session_state[f"{name}_"]
+
+            # if "level_1" not in st.session_state:
+            #     # Initialize to the saved value in session state if it's available
+            #     if "level_1_slider" in st.session_state:
+            #         st.session_state.level_1 = st.session_state.level_1_slider
+            #     else:
+            #         st.session_state.level_1 = 1
+            #         st.session_state.level_1_slider = 1
+            if name not in st.session_state:
+                if f"{name}_" in st.session_state:
+                    st.session_state[name] = st.session_state[f"{name}_"]
+                else:
+                    st.session_state[f"{name}_"] = value
+                    st.session_state[name] = value
+
+    @staticmethod
+    def root_dir_entered():
+        st.session_state.root_dir_ = st.session_state.root_dir
+        for key in st.session_state.keys():
+            if (key[:5] == "level") & (key[-1] == "_"):
+                del st.session_state[f"{key}"]
+
+    @staticmethod
+    def level_selected():
+        for key in st.session_state.keys():
+            if (key[:5] == "level") & (key[-1] == "_"):
+                st.session_state[key] = st.session_state[key[:-1]]
+
+    @staticmethod
+    def repo_on_change():
+        st.session_state.repo_ = st.session_state.repo
+
+    @staticmethod
+    def annotation_dir_changed():
+        st.session_state.annotation_dir = st.session_state.annotation_dir_
+
+    @staticmethod
+    def show_annot_clicked():
+        st.session_state.show_annot = st.session_state.show_annot_
+
+    @staticmethod
+    def show_annot_only_clicked():
+        st.session_state.show_annot_only = st.session_state.show_annot_only_
+
+
 # Load data and images
 class Connector:
     def __init__(self):
@@ -74,28 +163,45 @@ class Connector:
 
 
 @st.cache
-def load_data(root_dir, connector=None):
-    # load data
-    paths = []
-    for path in Path(root_dir).rglob("*"):
-        if path.suffix in EXTS:
-            paths.append(str(path.as_posix()))
+def load_data(root_dir, connector):
+    if connector.type == "local":
+        # load data
+        paths = []
+        for path in Path(root_dir).rglob("*"):
+            if path.suffix in EXTS:
+                paths.append(str(path.as_posix()))
 
-    # parse data
-    df = pd.DataFrame({"path": paths})
-    df["dir"] = [str(Path(path).parent.as_posix()) for path in df.path]
-    df["file"] = [str(Path(path).stem) for path in df.path]
-    return df
+        # parse data
+        df = pd.DataFrame({"path": paths})
+        df["dir"] = [str(Path(path).parent.as_posix()) for path in df.path]
+        df["file"] = [str(Path(path).stem) for path in df.path]
+        return df
+    elif connector.type == "azure":
+        paths = []
+        for blob in connector.conn.list_blobs(name_starts_with=root_dir):
+            # if Path(blob.name) in EXTS:
+            paths.append(blob.name)
+        df = pd.DataFrame({"path": paths})
+        df["dir"] = [str(Path(path).parent.as_posix()) for path in df.path]
+        df["file"] = [str(Path(path).stem) for path in df.path]
+        return df
+    else:
+        raise ValueError("Not supported connection.")
 
 
 # Functions
 @st.cache
-def load_image(path, resize_ratio=0.2, annotation=False, annotation_dir=""):
+def load_image(path, connector, resize_ratio=0.2, annotation=False, annotation_dir=""):
     error_msg = None
     seq = iaa.Sequential([iaa.Resize(resize_ratio)])
-    # with open(path, "rb") as f:
-    #     byte = Image
-    image = Image.open(path)
+    if connector.type == "local":
+        # with open(path, "rb") as f:
+        #     byte = Image
+        image = Image.open(path)
+    else:
+        # with open(path, "rb") as f:
+        #     byte = Image
+        image = Image.open(path)
 
     if annotation is True:
         try:
@@ -128,35 +234,6 @@ def load_labels():
     # reader = PascalVocReader(file_path)
     # reader.parse_xml()
     return pd.DataFrame({"file": annots, "annotation": True})
-
-
-# else
-
-
-def initialize_session_state(name, value, slider=False):
-    """initailize streamlit session state
-
-    if slider is True,
-    this does some tricks to assures that session state is not refreshed when restarted
-    this should be used with Callback function for streamlit slider function.
-    example)
-        def handle_change():
-            st.session_state[f"{name}"_] = st.session_state[name]
-    """
-
-    if slider is False:
-        if name not in st.session_state:
-            st.session_state[name] = value
-
-    else:
-        if name not in st.session_state:
-            # if f"{name}_" in st.session_state:
-            #     st.session_state[name] = st.session_state[f"{name}_"]
-            # else:
-            st.session_state[f"{name}_"] = value
-            st.session_state[name] = value
-        else:
-            st.session_state[name] = st.session_state[f"{name}_"]
 
 
 def connect(repo):

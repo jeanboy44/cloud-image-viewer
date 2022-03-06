@@ -1,11 +1,9 @@
 import yaml
 import streamlit as st
 
+from utils import load_data, SessionStateHandler as ss
+
 CONFIG_FILE = "config.yml"
-
-
-def repo_on_change():
-    st.session_state.repo_ = st.session_state.repo
 
 
 def main():
@@ -14,7 +12,7 @@ def main():
         "Repository",
         options=[key for key in st.secrets.keys()],
         key="repo",
-        on_change=repo_on_change,
+        on_change=ss.repo_on_change,
     )
 
     # if st.session_state.connection_name == "Local":
@@ -28,6 +26,7 @@ def main():
 
         st.session_state.root_dir = connector_.default_dir
         st.session_state.root_dir_ = connector_.default_dir
+        ss.root_dir_entered()
         st.session_state.show_annot = False
         st.session_state.show_annot_ = False
         st.session_state.show_annot_only = False

@@ -4,7 +4,7 @@ import pandas as pd
 from st_aggrid import AgGrid
 from st_aggrid.shared import GridUpdateMode
 
-from utils import load_data
+from utils import load_data, SessionStateHandler as ss
 
 # Load data and images
 @st.cache
@@ -18,37 +18,13 @@ def get_filter_info(data):
     return df
 
 
-def handle_change():
-    for key in st.session_state.keys():
-        if key[:5] == "level":
-            st.session_state[key[:-12]] = st.session_state[f"{key}"]
-
-
-def root_dir_entered():
-    st.session_state.root_dir_ = st.session_state.root_dir
-    for key in st.session_state.keys():
-        if key[:5] == "level":
-            del st.session_state[f"{key}"]
-
-
 def load_filter(data):
     filter_list = {}
     for col in data.columns:
-        if col not in st.session_state:
-            if f"{col}_multiselect" in st.session_state:
-                st.session_state[col] = st.session_state[f"{col}_multiselect"]
-            else:
-                st.session_state[col] = data[col].dropna().unique().tolist()
-                st.session_state[f"{col}_multiselect"] = (
-                    data[col].dropna().unique().tolist()
-                )
-        else:
-            if f"{col}_multiselect" not in st.session_state:
-                st.session_state[f"{col}_multiselect"] = st.session_state[col]
-
+        ss.initialize_session_state(
+            col, data[col].dropna().unique().tolist(), slider=True
+        )
         filter_list[col] = data[col].dropna().unique().tolist()
-        # else:
-        #     filter_list[col] = st.session_state[col]
 
     return filter_list
 
@@ -74,9 +50,11 @@ def filter_data(data, filter_info):
 def main():
     """"""
     st.sidebar.write("----")
-    st.sidebar.text_input(label="root_dir", key="root_dir", on_change=root_dir_entered)
+    st.sidebar.text_input(
+        label="root_dir", key="root_dir", on_change=ss.root_dir_entered
+    )
 
-    loaded_data = load_data(st.session_state.root_dir)
+    loaded_data = load_data(st.session_state.root_dir, st.session_state.connector)
     filter_info = get_filter_info(loaded_data)
     filters_ = load_filter(filter_info)
 
@@ -100,8 +78,8 @@ def main():
             st.multiselect(
                 label=name,
                 options=values,
-                on_change=handle_change,
-                key=f"{name}_multiselect",
+                on_change=ss.level_selected,
+                key=name,
             )
 
     # with col3:

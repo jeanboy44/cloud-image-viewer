@@ -6,6 +6,7 @@ from st_aggrid.shared import JsCode, GridUpdateMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 from utils import load_image, load_labels
+from utils import SessionStateHandler as ss
 
 # cellsytle_jscode = JsCode(
 #     """
@@ -26,18 +27,6 @@ from utils import load_image, load_labels
 # )
 
 
-def annotation_dir_changed():
-    st.session_state.annotation_dir_ = st.session_state.annotation_dir
-
-
-def show_annot_clicked():
-    st.session_state.show_annot_ = st.session_state.show_annot
-
-
-def show_annot_only_clicked():
-    st.session_state.show_annot_only_ = st.session_state.show_annot_only
-
-
 def main():
     st.sidebar.write("-----")
     st.sidebar.write("Image Configurations")
@@ -54,17 +43,17 @@ def main():
 
     co1, col2 = st.sidebar.columns(2)
     show_annot = co1.checkbox(
-        label="show_annotation", key="show_annot", on_change=show_annot_clicked
+        label="show_annotation", key="show_annot", on_change=ss.show_annot_clicked
     )
     data = st.session_state.filtered_data[["file", "path"]]
     if show_annot:
         show_only_annot = col2.checkbox(
-            label="only", key="show_annot_only", on_change=show_annot_only_clicked
+            label="only", key="show_annot_only", on_change=ss.show_annot_only_clicked
         )
         st.sidebar.text_input(
             label="annotation_dir",
             key="annotation_dir",
-            on_change=annotation_dir_changed,
+            on_change=ss.annotation_dir_changed,
         )
         data_label = load_labels()
         if data_label.shape[0] == 0:

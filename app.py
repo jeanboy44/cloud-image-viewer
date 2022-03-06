@@ -7,7 +7,7 @@ import pandas as pd
 # Import File/Data
 
 # More Fxn
-from utils import Connector, initialize_session_state
+from utils import SessionStateHandler as ss
 from home_app import main as home
 from view_image_app import main as view_image
 from settings_app import main as settings
@@ -20,20 +20,7 @@ PAGE_CONFIG = {
     "layout": "wide",
 }
 st.set_page_config(**PAGE_CONFIG)
-
-# Initialize session states
-# initialize_session_state("connection_type", None)
-initialize_session_state("connector", Connector())
-# initialize_session_state("repo_condition", "Local✅")
-initialize_session_state("loaded_data", None)
-initialize_session_state("filtered_data", None)
-
-initialize_session_state("repo", "Local", slider=True)
-initialize_session_state("root_dir", DEFAULT_DIR, slider=True)
-initialize_session_state("show_annot", False, slider=True)
-initialize_session_state("show_annot_only", False, slider=True)
-initialize_session_state("annotation_dir", "", slider=True)
-initialize_session_state("annotation_dir", "", slider=True)
+ss.initialize()
 
 
 def main():
