@@ -1,19 +1,11 @@
 import streamlit as st
 import pandas as pd
 
-import cv2
-import numpy as np
-
-from pathlib import Path
-import imgaug as ia
-import imgaug.augmenters as iaa
-from PIL import Image
 from st_aggrid import AgGrid
 from st_aggrid.shared import JsCode, GridUpdateMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 
-from utils import PascalVocReader
-
+from utils import load_image, load_labels
 
 # cellsytle_jscode = JsCode(
 #     """
@@ -33,39 +25,6 @@ from utils import PascalVocReader
 # """
 # )
 
-# Functions
-@st.cache
-def read_image(path, resize_ratio=0.2, annotation=False, annotation_dir=""):
-    error_msg = None
-    seq = iaa.Sequential([iaa.Resize(resize_ratio)])
-    # with open(path, "rb") as f:
-    #     byte = Image
-    image = Image.open(path)
-
-    if annotation is True:
-        try:
-
-            file_path = str(Path(annotation_dir).joinpath(f"{Path(path).stem}.xml"))
-            reader = PascalVocReader(file_path)
-            reader.parse_xml()
-            # encoded_img = np.fromstring(byte, dtype=np.uint8)
-            # image = cv2.imdecode(encoded_img, cv2.IMREAD_COLOR)
-            image = np.asarray(image)
-            if len(image.shape) == 2:
-                image = np.stack((np.asarray(image),) * 3, axis=-1)
-            bbs = ia.BoundingBoxesOnImage(reader.boxes, shape=image.shape)
-            images_aug, bbs_aug = seq(images=[image], bounding_boxes=bbs)
-            image = bbs_aug.draw_on_image(images_aug[0])
-        except Exception as e:
-            error_msg = e
-            images_aug = seq(images=[np.asarray(image)])
-            image = images_aug[0]
-    else:
-        images_aug = seq(images=[np.asarray(image)])
-        image = images_aug[0]
-
-    return image, error_msg
-
 
 def annotation_dir_changed():
     st.session_state.annotation_dir_ = st.session_state.annotation_dir
@@ -77,14 +36,6 @@ def show_annot_clicked():
 
 def show_annot_only_clicked():
     st.session_state.show_annot_only_ = st.session_state.show_annot_only
-
-
-def load_labels():
-    """"""
-    annots = [f.stem for f in Path(st.session_state.annotation_dir).glob("*.xml")]
-    # reader = PascalVocReader(file_path)
-    # reader.parse_xml()
-    return pd.DataFrame({"file": annots, "annotation": True})
 
 
 def main():
@@ -156,7 +107,7 @@ def main():
     with col2:
         st.markdown("### Image")
         try:
-            img, error_msg = read_image(
+            img, error_msg = load_image(
                 st.session_state.current_path,
                 resize_ratio=st.session_state.image_scale,
                 annotation=st.session_state.show_annot,

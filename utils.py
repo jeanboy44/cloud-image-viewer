@@ -1,9 +1,19 @@
+import numpy as np
+import pandas as pd
+from pathlib import Path
+import imgaug as ia
+import imgaug.augmenters as iaa
+from PIL import Image
+
 import streamlit as st
 from lxml import etree
+from pathlib import Path
 from xml.etree import ElementTree
 from azure.storage.blob import BlobServiceClient
 import imgaug as ia
 import imgaug.augmenters as iaa
+
+from constants import EXTS, DEFAULT_DIR
 
 XML_EXT = ".xml"
 ENCODE_METHOD = "utf-8"
@@ -11,6 +21,116 @@ ENCODE_METHOD = "utf-8"
 #     allow_output_mutation=True,
 #     hash_funcs={"_thread.RLock": lambda _: None, "builtins.weakref": lambda _: None},
 # )
+
+# Load data and images
+class Connector:
+    def __init__(self):
+        """"""
+        self._connected = True
+        self.connected_icon = "✅"
+        self.name = "Local"
+        self.type = "local"
+        self.conn = None
+        self.default_dir = DEFAULT_DIR
+
+    @property
+    def connected(self):
+        return self._connected
+
+    @connected.setter
+    def connected(self, value):
+        self._connected = value
+        if value is True:
+            self.connected_icon = "✅"
+        else:
+            self.connected_icon = "🚫"
+
+    def connect(self, name):
+        type_ = st.secrets[name]["type"]
+        if type_ == "local":
+            self.conn = None
+            self.name = name
+            self.type = type_
+            self.connected = True
+            self.default_dir = DEFAULT_DIR
+        elif type_ == "azure":
+            conn_str = st.secrets[name]["conn_str"]
+            container = st.secrets[name]["container"]
+            blob_service_client = BlobServiceClient.from_connection_string(conn_str)
+            self.conn = blob_service_client.get_container_client(container)
+            self.name = name
+            self.type = type_
+            self.connected = True
+            self.default_dir = ""
+        else:
+            raise ValueError("Unsupported Connection Type")
+
+        # print(self.name)
+        # print(self.type)
+        # print(self.aaa)
+        # st.write(self.name)
+        # st.write(self.type)
+        # st.write(self.aaa)
+
+
+@st.cache
+def load_data(root_dir, connector=None):
+    # load data
+    paths = []
+    for path in Path(root_dir).rglob("*"):
+        if path.suffix in EXTS:
+            paths.append(str(path.as_posix()))
+
+    # parse data
+    df = pd.DataFrame({"path": paths})
+    df["dir"] = [str(Path(path).parent.as_posix()) for path in df.path]
+    df["file"] = [str(Path(path).stem) for path in df.path]
+    return df
+
+
+# Functions
+@st.cache
+def load_image(path, resize_ratio=0.2, annotation=False, annotation_dir=""):
+    error_msg = None
+    seq = iaa.Sequential([iaa.Resize(resize_ratio)])
+    # with open(path, "rb") as f:
+    #     byte = Image
+    image = Image.open(path)
+
+    if annotation is True:
+        try:
+
+            file_path = str(Path(annotation_dir).joinpath(f"{Path(path).stem}.xml"))
+            reader = PascalVocReader(file_path)
+            reader.parse_xml()
+            # encoded_img = np.fromstring(byte, dtype=np.uint8)
+            # image = cv2.imdecode(encoded_img, cv2.IMREAD_COLOR)
+            image = np.asarray(image)
+            if len(image.shape) == 2:
+                image = np.stack((np.asarray(image),) * 3, axis=-1)
+            bbs = ia.BoundingBoxesOnImage(reader.boxes, shape=image.shape)
+            images_aug, bbs_aug = seq(images=[image], bounding_boxes=bbs)
+            image = bbs_aug.draw_on_image(images_aug[0])
+        except Exception as e:
+            error_msg = e
+            images_aug = seq(images=[np.asarray(image)])
+            image = images_aug[0]
+    else:
+        images_aug = seq(images=[np.asarray(image)])
+        image = images_aug[0]
+
+    return image, error_msg
+
+
+def load_labels():
+    """"""
+    annots = [f.stem for f in Path(st.session_state.annotation_dir).glob("*.xml")]
+    # reader = PascalVocReader(file_path)
+    # reader.parse_xml()
+    return pd.DataFrame({"file": annots, "annotation": True})
+
+
+# else
 
 
 def initialize_session_state(name, value, slider=False):
