@@ -1,22 +1,16 @@
 import cv2
 import numpy as np
 import pandas as pd
-from pathlib import Path
 import imgaug as ia
 import imgaug.augmenters as iaa
-from PIL import Image
 
 import streamlit as st
 from lxml import etree
 from pathlib import Path
 from xml.etree import ElementTree
 from azure.storage.blob import BlobServiceClient
-import imgaug as ia
-import imgaug.augmenters as iaa
 
-from .constants import EXTS, XML_EXT, DEFAULT_DIR
-
-ENCODE_METHOD = "utf-8"
+from .constants import EXTS, XML_EXT, DEFAULT_DIR, ENCODE_METHOD
 
 
 class SessionStateHandler:

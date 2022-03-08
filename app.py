@@ -1,17 +1,8 @@
-# Core Pkgs
 import streamlit as st
-
-# Additional Pkgs
-import pandas as pd
-
-# Import File/Data
-
-# More Fxn
 from libs.utils import SessionStateHandler as ss
 from libs.home_app import main as home
 from libs.view_image_app import main as view_image
 from libs.settings_app import main as settings
-from libs.constants import DEFAULT_DIR
 
 # Config Page
 PAGE_CONFIG = {

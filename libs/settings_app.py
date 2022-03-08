@@ -1,9 +1,5 @@
-import yaml
 import streamlit as st
-
-from .utils import load_data, SessionStateHandler as ss
-
-CONFIG_FILE = "config.yml"
+from .utils import SessionStateHandler as ss
 
 
 def main():
