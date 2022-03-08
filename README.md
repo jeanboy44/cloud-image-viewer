@@ -8,10 +8,8 @@ viewer for images in aws s3, azure blob
 
 ## secrets.toml
 ```
-[Name]
+[ConnectionName]
 type = "azure"
 connection_str = "<Your Connection String>"
 container = "test
 ```
-
-## Pakcage 

@@ -5,26 +5,8 @@ from st_aggrid import AgGrid
 from st_aggrid.shared import JsCode, GridUpdateMode
 from st_aggrid.grid_options_builder import GridOptionsBuilder
 
-from utils import load_image, load_labels
-from utils import SessionStateHandler as ss
-
-# cellsytle_jscode = JsCode(
-#     """
-# function(params) {
-#     if (params.value.includes(False)) {
-#         return {
-#             'color': 'white',
-#             'backgroundColor': 'darkred'
-#         }
-#     } else {
-#         return {
-#             'color': 'black',
-#             'backgroundColor': 'white'
-#         }
-#     }
-# };
-# """
-# )
+from .utils import load_image, load_labels
+from .utils import SessionStateHandler as ss
 
 
 def main():

@@ -4,7 +4,7 @@ from st_aggrid import AgGrid
 from st_aggrid.shared import GridUpdateMode
 
 import pandas as pd
-from utils import load_data, SessionStateHandler as ss
+from .utils import load_data, SessionStateHandler as ss
 
 # Load data and images
 @st.cache

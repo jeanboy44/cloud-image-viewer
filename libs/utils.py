@@ -14,13 +14,9 @@ from azure.storage.blob import BlobServiceClient
 import imgaug as ia
 import imgaug.augmenters as iaa
 
-from constants import EXTS, XML_EXT, DEFAULT_DIR
+from .constants import EXTS, XML_EXT, DEFAULT_DIR
 
 ENCODE_METHOD = "utf-8"
-# @st.cache(
-#     allow_output_mutation=True,
-#     hash_funcs={"_thread.RLock": lambda _: None, "builtins.weakref": lambda _: None},
-# )
 
 
 class SessionStateHandler:
