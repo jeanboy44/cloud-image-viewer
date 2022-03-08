@@ -2,8 +2,9 @@
 viewer for images in aws s3, azure blob
 
 ## 기능
-- 이미지 리스트 조회, 필터
-- 이미지 확인, 라벨
+- Query Images
+- List Images
+- View Image (with label)
 
 
 ## secrets.toml
