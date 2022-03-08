@@ -1,6 +1,7 @@
-streamlit == 1.5.1
-pandas == 1.4.1
-numpy == 1.22.2
-azure-storage-blob == 12.9.0
-pyyaml == 6.0
-streamlit-aggrid == 0.2.3.post2
+azure_storage==0.37.0
+imgaug==0.4.0
+lxml==4.8.0
+numpy==1.22.2
+opencv_python==4.5.5.62
+pandas==1.4.1
+streamlit==1.5.1
